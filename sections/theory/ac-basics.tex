@@ -1,0 +1,104 @@
+To the grid operates on alternating current, thus an
+understanding of the underlying formulas governing ac systems will be required to analyse it. \\
+In an AC system both current and voltage oscillate. This can be generally described using the following two equations:
+
+\begin{equation}
+    V(t) = V_m cos(\omega t + \theta_V)
+    \label{eq:ac:voltage_ac}
+\end{equation}
+
+\begin{equation}
+    I(t) = I_m cos(\omega t + \theta_I)
+    \label{eq:ac:current_ac}
+\end{equation}
+
+where $V_m$ and $V_m$ are the magnitudes of voltage and current,
+$\omega$ the angular velocity of the oscillations and $\theta_V$ and $\theta_I$
+the phase offset of Voltage and current.\\
+Power as a function of time can then be defined as:
+
+\begin{equation}
+    P(t) = V(t)I(t)
+    \label{eq:ac:power_t}
+\end{equation}
+
+Expanding this leads to the following expression:
+
+\begin{equation}
+    \begin{aligned}
+        P(t) = \frac{1}{2} V_m I_m (\cos (\theta_V-\theta_I) 
+        + \cos(2(\omega t + \theta_V))\cos(\theta_V-\theta_I)
+        + \sin(2(\omega t + \theta_V))\sin(\theta_V-\theta_I))
+    \end{aligned}
+    \label{eq:ac:power_ac_long}
+\end{equation}
+
+which can be simplified using
+
+\begin{equation}
+    \begin{aligned}
+        &\text{Impedance angle}: \quad  \theta &= \theta_V - \theta_I \\
+        &\text{Root mean square of } V: \quad  |V| &= \frac{V_m}{\sqrt{2}} \\
+        &\text{Root mean square of } I: \quad  |i| &= \frac{I_m}{\sqrt{2}} \\
+    \end{aligned}
+    \label{eq:ac:power_def}
+\end{equation}
+         
+\begin{equation}
+    \begin{aligned}
+        P(t)   &= P_R(t) + P_X(t)\\
+        P_R(t) &= |V||I| \cos(\theta) (1 + \cos(2(\omega t+\theta_V)))\\
+        P_X(t) &= |V||I| \sin(\theta) (1 + \sin(2(\omega t+\theta_V)))\\
+    \end{aligned}
+    \label{eq:ac:power_react_and_capacitive}
+\end{equation}
+
+If we are interested in steady state scenarios, then we can assume $\omega$ and $\theta_V$ 
+to be constants. Over longer periods of time the average of $\sin(A t + B)$ and $\cos(A t + B)$ are 0.\\
+We can thus simplify $P_R$ and $P_X$ further:
+
+\begin{equation}
+    \begin{aligned}
+        P_R(t) &= P = |V||I| \cos(\theta)\\
+        P_X(t) &= Q = |V||I| \sin(\theta)\\
+    \end{aligned}
+    \label{eq:ac:power_react_and_imag}
+\end{equation}
+
+It is handy to define these as the real and imaginary parts of a complex number:
+
+\begin{equation}
+    \begin{aligned}
+        S     &=  V I^*\\
+        S     &= P - iQ\\
+        Re(S) &= P\\ 
+        Im(S) &= Q
+    \end{aligned}
+    \label{eq:ac:complex}
+\end{equation}
+
+To describe an AC grid we also need to introduce a complex version
+of Ohm's law which reads like this:
+
+\begin{equation}
+    V = ZI
+    \label{eq:ac:ohm_complex}
+\end{equation}
+
+where $Z$ is impedance which is defined as:
+
+\begin{equation}
+    Z = R + iX
+    \label{eq:ac:impedance}
+\end{equation}
+
+where $R$ is resistance and $X$ is reactance. Reactance measures how much
+energy will be stored in the cable within a current cycle due to a magnetic
+field being created\\
+
+Lastly we can also define an ac-equivalent for conductance, which is called admittance $Y$:
+
+\begin{equation}
+    Y = 1/Z
+    \label{eq:ac:admittance}
+\end{equation}

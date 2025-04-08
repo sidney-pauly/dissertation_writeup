@@ -1,0 +1,95 @@
+The electrical grid can be represented as a graph. 
+In a graph theory a graph is defined as a set of nodes and edges. A node
+is some point in the graph, whilst an edge is a connecting element between exactly
+two nodes.\\
+\\
+
+The simplest form of a graph is where the nods and edges do not have
+any additional information attached to them and the edges are bidirectional.
+I.e. the edge $A \to B$ is the same as the edge $B \to A$. Even though the setup
+of such a graph seems simple, there are numerous metrics and complicated questions
+that can be asked at this level. For example trying to find the quickest way between
+two points in a graph is already a non-trivial problem that has its own class of algorithms
+(e.g. A*, etc.). In the context of this project graph-theory becomes important in two ways.
+Firstly it informs how the grid data is represented and processed and secondly it can
+be used to classify certain configurations of the grid, through graph measures.
+
+\subsection{Grid data representation}
+
+In the most fundamental terms the grid can be represented as nodes, which are the 
+producers or consumers (also called prosumers) and cables, which are the edges.
+The prosumers have a production or consumption capacity $S_i$ (complex power see eq. \ref{eq:ac:complex}).
+The cables have an admittance $Y_{ij}$ (see eq. \ref{eq:ac:admittance}).\\
+\\
+3 ways to represent the graph data will be subsequently used. 
+Each records the full information of the graph, but
+has different advantages and disadvantages. Note that the examples shown below all record
+the admittance of each cable in addition to the info that the cable exists. Sometimes
+this info is not need in which case it can be omitted and the representation further simplified/
+
+\subsubsection{Edge list}
+
+In edge list representation there is an entry for each edge in the graph in form of a vector:
+
+\begin{equation}    
+    \mathfrak{E_{ij}} = (i,\ j,\ Y_{ij})
+\end{equation}
+
+here $i$ and $j$ are the index of node A and B connected by the edge and
+$Y_{ij}$ the admittance of the edge (cable).
+For sparse graphs (graphs where only a handful of all possible edges $\mathfrak{E_{ij}}$ exist), this method
+of storing the graph data is very efficient as only as many entries as cables are required. The disadvantage
+algorithmically is that finding a specific connection between is not so efficient as it has to be searched for amongst
+all entries. E.g. to look up admittance between nodes a and b that specific edge has to be found.
+
+\subsubsection{Matrix form}
+
+In matrix form each row and column represents a node. Each entry in the matrix is the admittance between nodes $i$ and $j$.
+If the admittance is not to be recorded than if a node exists the entry can be set to 1 and if not to 0 instead:
+
+\begin{equation}
+    Y =
+    \begin{pmatrix}
+        Y_{11} & Y_{12} & ... & Y_{1n}\\
+        Y_{21} & ...    & ... & ...   \\
+        ...    & ...    & ... & ...   \\
+        Y_{n1} & ...    & ... & Y_{nn}\\
+    \end{pmatrix}
+\end{equation}
+
+As the cables in a grid are symmetrical (admittance is the same for current from a to b as it is form b to a), 
+the matrix is symmetrical as well: $Y_{ij} = Y_{ji}$. Further in pure graph representation all diagonal elements are
+zero as there are no cables running in a loop starting and ending at the same node.\\ 
+One big advantage of this representation is that it allows for quick lookups, i.e. if one needs the admittance between nodes a and b
+one can simply look up that entry in the matrix.\\
+A closely related matrix is the admittance matrix, here the diagonal elements are populated with the
+so called self-admittance, which consist of the sum of admittances to the neighbouring nodes:
+\begin{equation}
+    Y_{ii} = \sum_{i \ne j} Y_{ij}
+\end{equation}
+
+The admittance matrix is useful as it can be directly used in some mathematical
+or physical formulas like Ohm's law:
+
+\begin{equation}
+    V = YI
+\end{equation}
+
+The disadvantage of this form of representation is that it is very space inefficient, as it requires
+$N^2$ entries (where $N$ is the number of nodes). Especially for sparse graphs a lot of these entreis contain
+zeros and are thus redundant. This drawback in memory and iteration efficiency
+can be mitigated by clever data structure arrangement, which will be discussed later. 
+
+\subsubsection{Node representation}
+
+In the node representation the graph is represented by the connections
+each node has and the admittance to each other node:
+
+\begin{equation}
+    \mathfrak{N_i} = \sum_{i \ne j, Y_{ij} > 0} (j, \ Y_{ij}) 
+\end{equation}
+
+This representation is especially useful for things like flooding algorithms where it is
+relevant to know which nodes can be reached from any given node in question. 
+
+\subsection{Graph measures}

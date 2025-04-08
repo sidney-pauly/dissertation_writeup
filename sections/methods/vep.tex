@@ -1,0 +1,113 @@
+The \textbf{V}enios\textbf{E}nergy\textbf{P}latform is a cloud application
+developed and hosted by Venios. The customers are grid operators who can use
+it to visualize the grid, track real time data, have it predict 
+operational parameters such as prosumer loads and control the grid.
+The long term aim of Venios is to have an algorithm that takes in
+congested grid areas as its input and advises the platform on possible improved
+grid states and their effects. This work aims to implement the first step of this
+process by taking in grid data from VEP and analysing it, trying to figure out
+improved grid configurations. Data obtained for this project from VEP can broadly
+be categorized
+into topological and load profiles. Whilst the former is anything having to do with
+the grid structure, its geographical location and its operating parameters the later
+are production or consumption values over time for each of the prosumers.\\
+All data is obtained over Venios' API, in json format. This means any
+grid area of any VEP customer can be used for this analysis just by changing out
+the request parameters and use of the relevant authorization tokens for that customer.
+No code changes are required. This approach has the added advantage that any customer grid
+data is only stored in memory and only temporarily on the machine running the analysis. This
+has data privacy advantages.
+
+\subsection{Data exchanged}
+
+Data elements in VEP are identified by their \texttt{ForeignKey} (abbrv. to \texttt{FK}). This is a unique key which
+uniquely identifies the element and is sufficient to retrieve it. Data retrieved from the API might
+be a combination of many data elements and might therefore not have a single \texttt{ForeignKey}, however
+it might mention other elements by their \texttt{ForeignKey} so that they can be retrieved.
+
+\subsubsection{API methods}
+
+\begin{tabular}{ l  p{12cm}} 
+    \hline
+    \multicolumn{2}{c}{\textbf{Voltage groups}}\\
+    \hline
+    Method Name     & \texttt{GetAllVoltageGroups} \\
+    Input           & -\\
+    Output          & \texttt{list of VoltageLevel} \\
+    Description     & Returns all voltage levels available in the current VEP instance. A voltage level is a level within the grid, normal households are usually connected to the LV (low voltage) voltage level at 400V\\
+\end{tabular}
+
+\vspace{.5cm}
+
+\begin{tabular}{ l  p{12cm}} 
+    \hline
+    \multicolumn{2}{c}{\textbf{Grids in geographical boundary}}\\
+    \hline
+    Method Name     & \texttt{LoadGridsInGeoBounds} \\
+    Input           & \texttt{VoltageLevel, GeoBounds}\\
+    Output          & \texttt{list of GridFK}\\
+    Description     & Returns foreign keys to grids within a geographical boundary and voltage level. A "grid" in vep is an administrative set of grid components usually connected to one transformer\\
+\end{tabular}
+
+\vspace{.5cm}
+
+\begin{tabular}{ l  p{12cm}} 
+    \hline
+    \multicolumn{2}{c}{\textbf{Conducting topology}}\\
+    \hline
+    Method Name     & \texttt{LoadManyConductingTopologies} \\
+    Input           & \texttt{list of GridFK}\\
+    Output          & \texttt{VoltageLevel, GeoBounds} \\
+    Description     & Returns the conducting topology of a grid, these are its cables, nodes and transformers\\
+\end{tabular}
+
+\vspace{.5cm}
+
+\begin{tabular}{ l  p{12cm}} 
+    \hline
+    \multicolumn{2}{c}{\textbf{Get many}}\\
+    \hline
+    Method Name     & \texttt{GetMany} \\
+    Input           & list of FK\\
+    Output          & Raw VEP data element \\
+    Description     & Used to retrieve a list of VEP data elements of any data type. Used here to retrieve transformer and cable specifications\\
+\end{tabular}
+
+\subsubsection{Complex data types}
+
+Below is a description of the relevant complex data types retrieved from VEP. This is an incomplete
+description only showing relevant data fields.
+
+
+
+
+\vspace{1cm}
+
+
+
+\subsection{Topological grid data}
+
+
+
+
+
+% The grouping into grids
+% Outer world (for geographical locations)
+%   Nodes
+%   Edges
+% Inner world (conducting)
+%   Nodes (simple, prosumer, slack)
+%   Edges (switches, simple, with impedance, transformers)
+% Standard switchstate
+
+\subsection{Grid Load}
+
+% Explain how data is imported and the format it comes in
+% Data sources:
+%   Standard load profile
+%   Measurement based
+%   Weather forcast based
+%   Ai trained models
+
+% Discuss how times of day or time of year influences the grid load
+% and mention how that complicates the analysis
