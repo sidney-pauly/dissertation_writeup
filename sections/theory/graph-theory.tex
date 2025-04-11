@@ -62,19 +62,6 @@ the matrix is symmetrical as well: $Y_{ij} = Y_{ji}$. Further in pure graph repr
 zero as there are no cables running in a loop starting and ending at the same node.\\ 
 One big advantage of this representation is that it allows for quick lookups, i.e. if one needs the admittance between nodes a and b
 one can simply look up that entry in the matrix.\\
-A closely related matrix is the admittance matrix, here the diagonal elements are populated with the
-so called self-admittance, which consist of the sum of admittances to the neighbouring nodes:
-\begin{equation}
-    Y_{ii} = \sum_{i \ne j} Y_{ij}
-\end{equation}
-
-The admittance matrix is useful as it can be directly used in some mathematical
-or physical formulas like Ohm's law:
-
-\begin{equation}
-    V = YI
-\end{equation}
-
 The disadvantage of this form of representation is that it is very space inefficient, as it requires
 $N^2$ entries (where $N$ is the number of nodes). Especially for sparse graphs a lot of these entreis contain
 zeros and are thus redundant. This drawback in memory and iteration efficiency

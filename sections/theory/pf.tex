@@ -63,10 +63,24 @@ equation:
 \begin{equation}
     \begin{aligned}
         V_i \sum_{i \ne j}^N y_{ij} - \sum_{i \ne j}^N V_j y_{ij} = \frac{S_i^*}{V_i^*}
+        \label{eq:pf:pf_eq_large}
     \end{aligned}
+\end{equation}
+
+One further simplification can be employed by using an admittance matrix, in it the diagonal elements are populated with the
+so called self-admittance. It consists of the sum of admittances to the neighbouring nodes:
+
+\begin{equation}
+    y_{ii} = \sum_{i \ne j} y_{ij}
+\end{equation}
+
+Thus equation \ref{eq:pf:pf_eq_large} can be further simplified:
+
+\begin{equation}
+    \sum_{j=1}^N V_j y_{ij} = \frac{S_i^*}{V_i^*}
+    \label{eq:pf:full_pf_eq}
 \end{equation}
 
 This powerflow equation is non-linear, which thus necessities the use of a computational
 solver. Two solvers, their advantages and disadvantages as well as implementation details will
-be discussed subsequently.
-
+be discussed subsequently.\\

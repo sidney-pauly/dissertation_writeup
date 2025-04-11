@@ -1,0 +1,343 @@
+% Mention that the faster we can run powerflow the more data can be collected later -> a main goal
+% is to make powerflow as fast as possible
+% Validation:
+%   1. Comparision with results obtained by book
+%   2. Comparision with vep results?
+% Gauss-Seidel
+% Newton-raphson
+% python-c adapter
+% sparse matricies optimization
+% Show performance of different methods over grid size?
+
+To solve the powerflow equation \ref{eq:pf:full_pf_eq} a numerical solver
+is required\autocite{power_system_analysis}. In the context of this analysis
+a vast number switch states have to be explored. The more swtichstates
+can be explored in the same amount of time the better. Thus, a fast powerflow
+solver is required. There are numerous solvers powerflow with different speed
+and versatility traitoffs\autocite{pf_methods_comparison}. Some methods might
+only work on specific grid topologies like radial topologies, some other methods
+might require the network to have decoupled real and reactive power flows to work.
+The Gauss-Seidel and Newton-Raphson methods are both comparatively robust and do not
+have specific limitations on grid topology (meshed vs. radial)\autocite{pf_methods_comparison}.
+Particularly the Newton-Raphson method is very fast for larger girds. Both methods
+will be subsequently mathematically introduced and compared regarding their performance.
+Subsequently, different implementations of the methods will be discussed and a performance
+comparison between them and a widely used open source package \textit{Pandapower}\autocite{pandapower2018}
+will be presented.
+
+\subsection{Mathematical formulation}
+
+\subsubsection{Gauss-Seidel}
+
+The Gauss-Seidel method works by iteratively approximating the values of $x_i$ within a system of 
+equations. Each subsequent approximation is then used in the next iteration. There is no guarantee that
+the method converges and its convergence is highly dependent on the first guess being made. However the approach
+works well for most powerflow problems\autocite{power_system_analysis}.\\
+\\
+
+To apply Gauss-Seidel the powerflow equation (\ref{eq:pf:full_pf_eq}) has to be re-arranged
+by $V_i$ as such:
+
+\begin{equation}
+    V_i = \frac{\frac{S^*}{V_i^*} + \sum_{i \ne j}^N V_j y_{ij}}{y_{ii}}
+\end{equation}
+
+As can be seen the next guess for $V_i$ depends on the current value of $V_i$, we thus add a superscript $k$
+to denote which iterative approximation of $V_i$ is meant:
+
+\begin{equation}
+    V_i^{(k+1)} = \frac{\frac{S^*}{{V_i^*}^{(k)}} + \sum_{i \ne j}^N V_j y_{ij}}{y_{ii}}
+    \label{eq:pf:gauss_seidel}
+\end{equation}
+
+We can then apply a convergence criterion $\epsilon$ to be satisfied:
+
+\begin{equation}
+    |V_i^{(k+1)} - V_i^{(k)}| < \epsilon
+    \label{eq:pf:convergance_criterion_gs}
+\end{equation}
+
+We keep applying eq. \ref{eq:pf:gauss_seidel} until \ref{eq:pf:convergance_criterion_gs}
+is satisfied.
+
+To speed up the algorithm further an acceleration factor $\alpha$ can be applied:
+
+\begin{equation}
+    V_{i \ acc}^{(k+1)} = V_i^{(k + 1)} + \alpha(V_i^{(k + 1)} - V_{i \ acc}^{(k)})
+    \label{eq:pf:gs_pf}
+\end{equation}
+
+Typically, a value of $1.3 < \alpha < 1.7$ is recommeded\autocite{power_system_analysis}.
+
+\subsubsection{Newton-Raphson}
+
+Following \textit{Power System Analysis}\autocite{power_system_analysis} the Newton-Raphson method can be derived as follows. Starting with any equation like such:
+
+\begin{equation}
+    f(x) = c
+    \label{eq:pf:nr_start_point}
+\end{equation}
+
+we can now decompose $x$ into an initial estimate $x^{(0)}$ 
+and the difference $\Delta x^{(0)}$ of that estimate to the correct solution s.t.
+$x = x^{(0)} + \Delta x^{(0)}$. This yields:
+
+\begin{equation}
+    f(x^{(0)} + \Delta x^{(0)}) = c
+\end{equation}
+
+Taylor expanding this equation yields
+
+\begin{equation}
+    f(x^{(0)}) + (\frac{df}{dx})^{(0)} \Delta x^{(0)} + \frac{1}{2!} (\frac{d^2f}{dx^2})^{(0)} (\Delta x^{(0)})^2 + ... = c
+\end{equation}
+
+Assuming a small error $\Delta x^{(0)}$ the higher may be dropped. Thus
+
+\begin{equation}
+    \Delta x^{(0)} \approxeq \frac{c - f(x^{(0)}) }{ (\frac{df}{dx})^{(0)} }
+\end{equation}
+
+This can now be used to obtain subsequent approximations:
+
+\begin{align}
+    x^{(1)}   &= x^{(0)} + \Delta x^{(0)}\\
+    x^{(k+1)} &= x^{(k)} + \Delta x^{(k)}\\
+    x^{(k+1)} &= x^{(k)} + \frac{c - f(x^{(k)}) }{ (\frac{df}{dx})^{(k)} }
+    \label{eq:pf:nr_iteration}
+\end{align}
+
+
+To make this approach work we need to arrange the powerflow equation \ref{eq:pf:full_pf_eq}
+to the form \ref{eq:pf:nr_start_point}. We can choose between making $c = I$ or 
+$c = S^*$:
+
+\begin{align}
+    \sum_{j = 1}^N V_i V_j y_{ij} = S^*_i\\
+    \sum_{j = 1}^N V_j y_{ij} = I_i
+    \label{eq:pf:nr_pf_starting_point}
+\end{align}
+
+thus $f(x)$ becomes:
+
+\begin{align}
+    f(x) &= S^*_i(V)\\
+    f(x) &= I_i(V)
+\end{align}
+
+To formulate Newton-Raphson we also need the derivates $\frac{S^*_i(V)}{dV}$ or $\frac{I_i(V)}{dV}$. As $V$ and $S$ are vectors
+(one value for each node $i$), the full derivative is a Jacobian:
+
+\begin{align}
+    \frac{S(V)}{dV} = J = 
+    \begin{pmatrix}
+        \frac{\partial S^*_1}{\partial V_1} & \frac{\partial S^*_1}{\partial V_2} & \dots  & \frac{\partial S^*_1}{\partial V_N}\\
+        \frac{\partial S^*_2}{\partial V_1} & \ddots                              &        &                                    \\
+        \vdots                              &                                     & \ddots &                                    \\
+        \frac{\partial S^*_N}{\partial V_1} &                                     &        & \frac{\partial S^*_N}{\partial V_N}
+    \end{pmatrix}
+\end{align}
+
+As these are complex number there are an additional three choices, the derivative can either be taken
+with respect to the Cartesian from, Polar form or be left as a complex derivative.\\
+\\
+All these different choices do not only make a mathematical difference, they have impact
+on computational and convergence performance\autocite{newton_raphson_setup_choices}. Complex formulations
+generally perform the worst, whilst Polar and Cartesian formulations seem to have similar performance.
+A current based setup performs slightly better in some scenarios\autocite{newton_raphson_setup_choices}.
+However, due to the differences being minor and a wider adoption of the polar power formulation it will be used
+here.\\
+
+Reformulating eq. \ref{eq:pf:nr_pf_starting_point} in polar form yields the following:
+
+\begin{equation}
+    P_i = \sum_{j=1}^N |V_i||V_j||y_{ij}| \cos(\theta_{ij} - \delta_i + \delta_j)\\
+    \label{eq:pf:nr_pf_p}
+\end{equation}
+\begin{equation}
+    Q_i = -\sum_{j=1}^N |V_i||V_j||y_{ij}| \sin(\theta_{ij} - \delta_i + \delta_j)
+    \label{eq:pf:nr_pf_q}
+\end{equation}
+
+To obtain the derivative we can again produce a jacobian:
+
+\begin{equation}
+    J =  
+    \begin{bmatrix}
+        \vec{P}(|\vec{V}|, \ \vec{\delta})\\
+        \vec{Q}(|\vec{V}|, \ \vec{\delta})
+    \end{bmatrix}
+    \begin{pmatrix}
+        \frac{\partial}{\partial |\vec{\delta}|} & \frac{\partial}{\partial |\vec{V}|}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        \frac{\partial \vec{P}}{\partial \vec{\delta}} & \frac{\partial \vec{P} }{\partial |\vec{V}|}\\
+        \frac{\partial \vec{Q}}{\partial \vec{\delta}} & \frac{\partial \vec{Q} }{\partial |\vec{V}|}\\
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        J_1 & J_2\\
+        J_3 & J_4
+    \end{pmatrix}
+    \label{eq:pf:nr_pf_jacobi}
+\end{equation}
+
+Note that all the values above are vectors, thus each of the entries $J_n$ expand into
+their own sub Jacobians.
+This can be used to formulate \ref{eq:pf:nr_iteration} for powerflow:
+
+\begin{equation}
+    V^{(k+1)} = V^{(k)} + (P^{sch} - P^{(k)})J^{-1}
+\end{equation}
+
+where $P^{sch}$ is the power values given as input constraints, $P(k)$ the power
+calculated for this iteration and $V$ and $P$ are row vectors as such:
+
+\begin{equation}
+    V = 
+    \begin{pmatrix}
+        \delta_1\\
+        \dots\\
+        \delta_N\\
+        -\\
+        \delta_1\\
+        \dots\\
+        \delta_N
+    \end{pmatrix}
+    \quad
+    P = 
+    \begin{pmatrix}
+        P_1\\
+        \dots\\
+        P_N\\
+        -\\
+        Q_1\\
+        \dots\\
+        Q_N
+    \end{pmatrix}
+\end{equation}
+
+This also gives us our convergence criteria in the form of:
+
+\begin{align}
+    \Delta P &= P^{sch} - P\\
+    |\Delta P| &< \epsilon
+    \label{eq:pf:nr_pf_convergance}
+\end{align}
+
+\begin{equation}
+    V^{(k+1)} = V^{(k)} + \Delta P \ J^{-1}
+\end{equation}
+
+Again this formula is applied until \ref{eq:pf:nr_pf_convergance} is fulfilled.
+
+\subsection{Implementation}
+
+All powerflow solver code can be found in 
+\texttt{lib/powerflow.py}, \texttt{lib/fastpf/powerflow.h}
+\\ and
+\texttt{lib/fastpf/powerflow.c}\\
+
+The methods \texttt{solve\_powerflow\_gauss\_seidel()}
+and \texttt{solve\_powerflow\_newton\_raphson()}
+use python and numpy only and closely follow the mathematical formulations layed out above.\\
+
+For the Gauss-Seidel method it is worth mentioning, that the Voltage result for each
+node (\ref{eq:pf:gs_pf}) is immediately used to update the voltage vector. I.e. when $V_i^{(k+1)}$
+is calculated the voltages $V_{j}^{(k+1)}$ where $j<i$ are already available and being used instead of
+the old values $V_{j}^{(k)}$.\\
+
+These methods where used as a baseline to access their performance. To identify where the biggest
+speed-ups in performance could be gained timings where recorded for each of stages in the algorithm.
+For a run of the python only Newton-Raphson timings to calculate the simbench grid shown in figure
+\ref{fig:vep:simbench_node_types} are listed below:
+
+\vspace{.5cm}
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{ll}
+            \textbf{Method section} & \textbf{Time (ms)}\\
+            \hline
+            Prepare matrices and vectors & 0.108\\
+            Fill jacobian with zeros &  0.050\\
+            Fill jacobian with values & 296.843\\
+            Calculate Deltas &      0.067\\
+            Invert Jacobian &      1.099\\
+            Update voltage vector & 0.235\\
+            \hline
+            \textbf{Total} & \textbf{298.487}
+        \end{tabular}
+    \end{center}
+\caption{Timings taken for different parts of the \texttt{solve\_powerflow\_newton\_raphson()} method}
+\end{figure}
+    
+From this table it can immediately be seen, that the most important part
+of the algorithm to optimize is filling the Jacobian with values. Thus, this
+part was implemented in c using python c bindings to directly fill a numpy
+matrix passed with values. This has the major advantage that only the most performance
+critical code has to be implemented in c whilst everything else can be kept in python
+for easy and quick development. Additionally, passing an existing matrix from python
+means no additional memory allocations have to be done in c which is both good for performance 
+and memory safety.\\
+Taking the same timing for the c enhanced Newton-Raphson implementation yields the following:
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{ll}
+            \textbf{Method section} & \textbf{Time (ms)}\\
+            \hline
+            Prepare matrices and vectors & 0.232\\
+            Fill jacobian with zeros &  0.051\\
+            Fill jacobian with values & 0.436\\
+            Calculate Deltas &      0.032\\
+            Invert Jacobian &      1.493\\
+            Update voltage vector & 0.016\\
+            Finalize & 0.016\\
+            \hline
+            \textbf{Total} & \textbf{2.276}
+        \end{tabular}
+    \end{center}
+\caption{Timings taken for different parts of the \texttt{fast\_newton\_raphson()} method}
+\end{figure}
+
+Using the new c method yields a considerable speed-up by more than ten times.\\
+
+To unlock a further speed gain the matrices in use need to be examined closely. A normal admittance matrix has 
+an entry for every possible combination of nodes $i$ and $j$, this means it has size $N^2$. However, if there is
+no cable betewen $i$ and $j$ this entry is zero. As a lot of these cables do not exist a lot of the entries are zero
+and the admittance matrix is sparse.
+As can be seen from equation \ref{eq:pf:nr_pf_jacobi} as well as \ref{eq:pf:nr_pf_p} and \ref{eq:pf:nr_pf_q} the entries
+in the Jacobian are also zero if a given entry $y_{ij}$ is zero in the admittance matrix.\\
+Just iterating over these zero entries or doing multiplications of zero values wastes considerable processor time. On top
+the large matrices take up a lot of memory. This problem can be solved by specifically using
+a sparse matrix library like \textit{scipy.sparse}\autocite{2020SciPy-NMeth}. The library offers
+data types that only store non-zero elements within the matrix as well as solvers that can operate
+efficiently on these types.\\
+Using the sparse library as well as implementing c code that operates on this matrix type a
+further performance gain is possible:
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{ll}
+            \textbf{Method section} & \textbf{Time (ms)}\\
+            \hline
+            Prepare matrices and vectors & 0.075\\
+            Fill power vec. with zeros &  0.007\\
+            Fill jacobian with values & 0.179\\
+            Calculate Deltas &      0.024\\
+            Invert Jacobian &      0.452\\
+            Update voltage vector & 0.015\\
+            Finalize & 0.013\\
+            \hline
+            \textbf{Total} & \textbf{0.765}
+        \end{tabular}
+    \end{center}
+\caption{Timings taken for different parts of the \texttt{fast\_newton\_raphson\_sparse()} method}
+\end{figure}
+
+
+\subsection{Validation}
+
+\subsection{Performance}

@@ -8,15 +8,18 @@
 % \usepackage[T1]{fontenc}
 % \usepackage{pgfplots} 
 % \usepackage[myheadings]{fullpage}
-% \usepackage{tikz}
+\usepackage{tikz}
 \usepackage{hyperref}
-% \usepackage{float}
+\usepackage{float}
 \usepackage{fancyhdr}
 % \usepackage{enumitem}
 % \usepackage{changepage}
-% \usepackage{subcaption} % loads the caption package
+\usepackage{subcaption} % loads the caption package
 \usepackage{import}
 \usepackage{geometry}
+\usepackage{adjustbox}
+\usepackage{caption}
+\usepackage{booktabs}
 \usepackage[style=vancouver]{biblatex}
 
 \addbibresource{all.bib}
@@ -86,6 +89,15 @@
 
 \input{sections/introduction/introduction.tex}
 
+\section{Study case}
+
+\input{sections/introduction/study-case.tex}
+
+\section{Aims}
+
+\input{sections/introduction/aims.tex}
+
+
 \chapter{Theory}
 
 % \import{sections/theory/}{ac-basics.tex}
@@ -108,27 +120,13 @@
 
 \input{sections/methods/vep.tex}
 
-
 \section{Data cleanup and preperation}
 
-% Explain the atomic island concept
-% Inter atomic-island switches
-% Explain how this will be the grid we'll be optimizing on
-% Explain that we can merge in the atomic islands acting as "leafs" (show comparison graph)grid
-% Explain the problem with not connected parts of the grid in the satandard switch case and the solution
+\input{sections/methods/data_preperation.tex}
 
 \section{Powerflow algorthms}
 
-% Mention that the faster we can run powerflow the more data can be collected later -> a main goal
-% is to make powerflow as fast as possible
-% Validation:
-%   1. Comparision with results obtained by book
-%   2. Comparision with vep results?
-% Gauss-Seidel
-% Newton-raphson
-% python-c adapter
-% sparse matricies optimization
-% Show performance of different methods over grid size?
+\input{sections/methods/pf.tex}
 
 \section{Switchstate explorer}
 
