@@ -9,18 +9,28 @@
 % \usepackage{pgfplots} 
 % \usepackage[myheadings]{fullpage}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc} 
+\usetikzlibrary{shapes.geometric}  % Required for regular polygons
+\usetikzlibrary{decorations.pathmorphing}  % Enables zigzag paths
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{intersections}
+\usetikzlibrary{arrows.meta} 
 \usepackage{hyperref}
 \usepackage{float}
 \usepackage{fancyhdr}
+\usepackage{array}
 % \usepackage{enumitem}
 % \usepackage{changepage}
 \usepackage{subcaption} % loads the caption package
 \usepackage{import}
 \usepackage{geometry}
 \usepackage{adjustbox}
-\usepackage{caption}
+\usepackage[margin=1cm]{caption}
 \usepackage{booktabs}
 \usepackage[style=vancouver]{biblatex}
+\usepackage{algorithm2e}
 
 \addbibresource{all.bib}
 
@@ -89,13 +99,13 @@
 
 \input{sections/introduction/introduction.tex}
 
+\section{Existing Literature}
+
+\input{sections/introduction/existing_literature.tex}
+
 \section{Study case}
 
 \input{sections/introduction/study-case.tex}
-
-\section{Aims}
-
-\input{sections/introduction/aims.tex}
 
 
 \chapter{Theory}
@@ -120,15 +130,17 @@
 
 \input{sections/methods/vep.tex}
 
-\section{Data cleanup and preperation}
-
-\input{sections/methods/data_preperation.tex}
-
 \section{Powerflow algorthms}
 
 \input{sections/methods/pf.tex}
 
+\section{Data cleanup and preperation}
+
+\input{sections/methods/data_preperation.tex}
+
 \section{Switchstate explorer}
+
+\input{sections/methods/switchstate_explorer.tex}
 
 % Explain constraints: exactly one trafo per gird, no unconnected nodes 
 % Metion literature: anchored graph partitioning

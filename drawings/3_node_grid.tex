@@ -1,0 +1,41 @@
+\begin{tikzpicture}[scale=1]
+
+
+    % Slack
+    \draw[line width=.8mm] (-4, -1) coordinate(s1) -- ++(0, 2.5) coordinate(e1) node(slack)[above]{1: Slack Node};
+    \node (voltage_label) at ($(s1) - (.2, 0)$)[left] {$V_1 = 1.05 pu$};
+
+    % Load 1
+    \draw[line width=.8mm] (4, -1) coordinate(s2) -- ++(0, 2.5) coordinate(e2) node(slack)[above]{2: Prosumer};
+    \node (q_label1) at ($(s2) + (.2, 0)$)[left][right] {$Q = 110.2Mvar$};
+    \node (p_label1) at ([yshift=2mm]q_label1)[above] {$P = 256.6MW$};
+
+    % Load 2
+    \draw[line width=.8mm, name path=l2] (-1.5, -2) coordinate(s3) -- ++(3, 0) coordinate(e3);
+    \node(slack) at ($(s3) - (0, .3)$)[left]{3: Prosmuer};
+    \node(p_label2) at ($(e3) - (0, .3)$)[right]{$P = 138.6MW$};
+    \node(q_label2) at ([yshift=-2mm]p_label2)[below]{$Q = 45.2 Mvar$};
+
+    % Lines
+    \draw[line width=.5mm] ($(e1) - (0, .7)$) -- ($(e2) - (0, .7)$) node[pos=.5](l1_midpoint){};
+    \node(line_lbl_1) at (l1_midpoint)[above]{$y_{12} = 10-j20$};
+
+    \draw[line width=.5mm] ($(s1) + (0, .7)$) -- ++(3, 0) coordinate(l2_end) node[pos=.5](l2_midpoint){};
+    \node(line_lbl_2) at (l2_midpoint)[above]{$y_{13} = 10-j30$};
+
+    \path[name path=intercept] (l2_end) -- ++(0, -4);
+    \draw[
+        line width=.5mm,
+        name intersections={of=intercept and l2}
+    ] (l2_end) to (intersection-1);
+
+    \draw[line width=.5mm] ($(s2) + (0, .7)$) -- ++(-3, 0) coordinate(l3_end) node[pos=.5](l3_midpoint){};
+    \node(line_lbl_3) at (l3_midpoint)[above]{$y_{23} = 16-j32$};
+
+    \path[name path=intercept2] (l3_end) -- ++(0, -4);
+    \draw[
+        line width=.5mm,
+        name intersections={of=intercept2 and l2}
+    ] (l3_end) to (intersection-1);
+
+  \end{tikzpicture}

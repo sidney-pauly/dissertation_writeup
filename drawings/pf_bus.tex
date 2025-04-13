@@ -1,0 +1,33 @@
+\begin{tikzpicture}[scale=4]
+
+    % Bus
+    \draw[line width=1mm] (0, 0) -- (0, 2) node(bus)[above]{$V_i \ (\text{bus node})$};
+
+    % Current Incoming  
+    \draw[->, line width=1mm] (-.3, .6) to [edge label=\large $I_i$] ++(.2,0) coordinate(p);
+    \draw[-, line width=1mm] (p) -- (p -| bus);
+
+    % Load
+    \draw[-, line width=1mm] (0, .2) -- ++(.4, 0) coordinate(p);
+    \draw[-, line width=1mm] (p) -- ++(0, -.4) coordinate(p);
+    \draw[line width=1mm]  ($(p) - (.15, 0)$) rectangle ++(.3, -.5) coordinate(l);
+    \node[line width=1mm] (lLabel) at (l)[right] {$y_{i0}$}; %label
+    \draw[line width=1mm] ($(p) - (0, .5)$) -- ++(0, -.2) coordinate(p);
+    \draw[line width=1mm] ($(p) + (-.2, 0)$) -- ($(p) + (.2, 0)$);
+    \draw[line width=1mm] ($(p) + (-.15, -.1)$) -- ($(p) + (.15, -.1)$);
+    \draw[line width=1mm] ($(p) + (-.1, -.2)$) -- ($(p) + (.1, -.2)$);
+
+    % Other nodes
+    \draw[line width=1mm] (1, 1.7) coordinate(s) to [edge label=\large $y_{i1}$] (s -| bus) coordinate(p);
+    \draw[line width=1mm] ($(s) + (0, .1)$) -- ($(s) + (0, -.1)$);
+    \node (label) at (s)[above] {$V_1$};
+
+    \draw[line width=1mm] (1.5, 1.2) coordinate(s) to [edge label=\large $y_{i2}$] (s -| bus) coordinate(p);
+    \draw[line width=1mm] ($(s) + (0, .1)$) -- ($(s) + (0, -.1)$);
+    \node (label) at (s)[above] {$V_2$};
+
+    \draw[line width=1mm] (2, .4) coordinate(s) to [edge label=\large $y_{in}$] (s -| bus) coordinate(p);
+    \draw[line width=1mm] ($(s) + (0, .1)$) -- ($(s) + (0, -.1)$);
+    \node (label) at (s)[above] {$V_n$};
+
+  \end{tikzpicture}

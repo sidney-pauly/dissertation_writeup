@@ -107,6 +107,14 @@ This can now be used to obtain subsequent approximations:
     \label{eq:pf:nr_iteration}
 \end{align}
 
+\begin{figure}[H]
+    \centering
+    \input{drawings/newton_raphson.tex}
+    \caption{
+       Graphical representation of the Newton-Raphson method
+    }
+    \label{fig:pf:nr_graph}
+\end{figure}
 
 To make this approach work we need to arrange the powerflow equation \ref{eq:pf:full_pf_eq}
 to the form \ref{eq:pf:nr_start_point}. We can choose between making $c = I$ or 
@@ -337,7 +345,43 @@ further performance gain is possible:
 \caption{Timings taken for different parts of the \texttt{fast\_newton\_raphson\_sparse()} method}
 \end{figure}
 
-
 \subsection{Validation}
 
-\subsection{Performance}
+\begin{figure}[H]
+    \centering
+    \input{drawings/3_node_grid.tex}
+    \caption{
+        A simple 3 node system taken from \textit{Power System Analysis}\autocite{power_system_analysis}.
+        Admittances $y_{ij}$ are in $pu$ (power unit) on a 100-MVA base.
+        $P$ and $Q$ of prosumers are positive for consumption and negative for production.
+    }
+    \label{fig:pf:3_node_system}
+\end{figure}
+
+
+Fast powerflow is good, but no use if it is not correct. For validation
+the solvers are compared against the system shown in figure \ref{fig:pf:3_node_system} and results
+provided in \textit{Power System Analysis}\autocite{power_system_analysis}.
+
+\begin{figure}[H]
+    \begin{center}
+        \begin{tabular}{m{3cm} | m{2.5cm} m{2.5cm} m{2.5cm} m{2.5cm}}
+            Method & Slack real Power $P_1$ (MW) & Slack reactive Power $Q_1$ (Mvar) & Node 2 Voltage $V_2$ ($pu$) & Node 3 Voltage $V_2$ ($pu$)\\
+            \hline
+            Gauss-Seidel in \textit{Power System Analysis}\autocite{power_system_analysis} & $409.5$ & $189$ & $0.9800 - j0.0600$ & $1.0000 - j0.0500$\\
+            \hline
+            Own Gauss-Seidel implementation & 409.4 & 188.9 & $0.9800-j0.0600$ & $1.0000 - j0.0500$ \\
+            \hline
+            Own Newton-Raphson implementation (basic) & 409.5 & 189 & $0.9800-j0.0600$ & $1.0000 - j0.0500$ \\
+        \end{tabular}
+    \end{center}
+    \caption{Results obtained through different methods for the grid shown in figure \ref{fig:pf:3_node_system}}
+\end{figure}
+
+The table above shows that the results obtained with our own Gauss-Seidel and Newton-Raphson
+implementations agree with each other and with the values calculated in \textit{Power System Analysis}\autocite{power_system_analysis}. The accelerated
+Newton-Raphson methods have also been compared with the values shown above, they are exactly equal to the values 
+for the basic Newton-Raphson implementation
+
+\subsection{Performance benchmarks}
+

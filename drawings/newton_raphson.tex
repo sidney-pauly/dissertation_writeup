@@ -1,0 +1,70 @@
+\begin{tikzpicture}[scale=2]
+
+    \newcommand*{\eq}{=}
+    \newcommand*{\interceptpos}{3.05}
+
+    % Axis
+    \draw[->,thick, line width=.7mm, name path=xaxis] (-.5,0) -- (4,0) coordinate(xlbl);
+    \draw[->,thick, line width=.7mm] (0,-.5) -- (0,2.5);
+
+    % fx
+    \clip (-.7, -.7) rectangle (4, 2.5);
+    \draw[
+        -,
+        blue,
+        domain=-.5:4,
+        smooth,
+        line width=1mm,
+        variable=\x,
+        name path=fx
+    ] plot ({\x},\x*\x*.2 -.3);
+
+    \filldraw[
+        red, 
+        name intersections={of=fx and xaxis}
+    ] (intersection-1) coordinate(x) circle (.5mm);
+
+    \node at (x)[below] {$x$};
+
+    % Tangent
+    \draw[
+        -,
+        domain=-.5:4,
+        smooth,
+        line width=.9mm,
+        variable=\x,
+        black,
+        name path=tangent
+    ] plot({\x},{2*\interceptpos*.2*(\x - \interceptpos) + (\interceptpos*\interceptpos*.2 -.3)});
+
+    \filldraw[
+        red, 
+        name intersections={of=tangent and xaxis}
+    ] (intersection-1) coordinate(x1) circle (.5mm);
+
+    \node at (x1)[below] {$x_1$};
+
+    % Intercept
+    \path[name path=intercept] (\interceptpos, 0) coordinate(x0) -- ++(0, 4);
+    \draw[
+        dotted, 
+        line width=1mm,
+        name intersections={of=fx and intercept}
+    ] (x0) to [edge label= $\Delta y \eq f(x)$, sloped] (intersection-1) coordinate(v0);
+
+    \filldraw [red] (x0) circle (.5mm);
+    \filldraw [red] (v0) circle (.5mm);
+
+    \node at (x0)[below] {$x_0$};
+    \node at (v0)[left] {$f(x_0)$};
+
+    \draw[<->, line width=1mm,name path=dx] ($(x1) - (0, .4)$) -- ($(x0) - (0, .4)$) node[pos=0.5](dxlbl){};
+
+    \node at (dxlbl)[below]{$\Delta x$};
+
+    % Formula
+
+    \node[draw, fill=white] at (.5, 1) { $x_1 \eq x_0 - \frac{f(x_0)}{f'(x_0)}$ };
+
+
+  \end{tikzpicture}

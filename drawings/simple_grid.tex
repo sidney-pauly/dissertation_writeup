@@ -1,0 +1,60 @@
+\begin{tikzpicture}[scale=7, outer sep=0, inner sep=0,
+    nodered/.style={circle, draw=red!60, fill=red!5, very thick, minimum size=2cm},
+    nodegreen/.style={circle, draw=green!60, fill=green!5, very thick, minimum size=2cm},
+    % nodered/.style={rectangle, draw=red!60, fill=red!5, very thick, minimum size=5mm},
+    trianglered/.style={draw,shape=regular polygon,regular polygon sides=3, fill=red!10, minimum size=2.5cm},
+    trianglegreen/.style={draw,shape=regular polygon,regular polygon sides=3, fill=green!10, minimum size=2.5cm}
+    ]
+
+    % Nodes
+    % Grid 2
+    \node[trianglered] (trafo1) {\includegraphics[width=1cm]{img/icons/bolt.png}};
+    \node[nodered] (node1_1) [below=of trafo1] {};
+    \node[nodered] (node1_2) [left=of node1_1.south west] {\includegraphics[width=1cm]{img/icons/house.png}};
+    \node[nodered] (node1_2a) [below=of node1_1] {\includegraphics[width=1cm]{img/icons/solar.png}};
+    
+    \node[nodered] (node1_3) [right=of node1_1] {};
+    \node[nodered] (node1_3a) [below=of node1_3] {\includegraphics[width=1cm]{img/icons/house.png}};
+
+    \draw[-] (trafo1) -- (node1_1);
+    \draw[-] (node1_1) -- (node1_2);
+    \draw[-] (node1_1) -- (node1_2a);
+    \draw[-] (node1_1) -- (node1_3);
+    \draw[-] (node1_3) -- (node1_3a);
+
+    % Grid 2
+    \node[nodegreen] (node2_1) [right=3cm of node1_3] {};
+    \node[nodegreen] (node2_2) [right=of node2_1] {};
+    \node[nodegreen] (node2_2a) at ($(node2_2) + (3mm, -5mm)$)  {\includegraphics[width=1cm]{img/icons/house.png}};
+    \node[nodegreen] (node2_2b) [left=of node2_2a] {\includegraphics[width=1cm]{img/icons/car.png}};
+
+
+    \node[nodegreen] (node2_3) [right=of node2_2] {};
+    \node[nodegreen] (node2_3a) at ($(node2_3) + (5mm, 3mm)$) {\includegraphics[width=1cm]{img/icons/house.png}};
+
+
+    \node[nodegreen] (node2_4) at ($(node2_3) + (4mm, -5mm)$) {};
+    \node[nodegreen] (node2_4a) at ($(node2_4) + (5mm, 4mm)$) {\includegraphics[width=1cm]{img/icons/industry.png}};
+    \node[nodegreen] (node2_4b) [below=of node2_4a] {\includegraphics[width=1cm]{img/icons/solar.png}};
+
+    \node[trianglegreen] (trafo2) [above=of node2_2] {\includegraphics[width=1cm]{img/icons/bolt.png}};
+    
+    % switch
+    \draw[-] (node1_3) -- ([xshift=1.2mm]node1_3.east);
+    \draw[-] ([xshift=1.2mm]node1_3.east) -- ([xshift=-1.2mm, yshift=1mm]node2_1.west);
+    \draw[-] ([xshift=-1.2mm]node2_1.west) -- (node2_1);
+
+    \draw[-] (trafo2) -- (node2_2);
+    \draw[-] (node2_1) -- (node2_2);
+    \draw[-] (node2_2) -- (node2_3);
+    \draw[-] (node2_3) -- (node2_4);
+
+    \draw[-] (node2_2) -- (node2_2a);
+    \draw[-] (node2_2) -- (node2_2b);
+
+    \draw[-] (node2_3) -- (node2_3a);
+
+    \draw[-] (node2_4) -- (node2_4a);
+    \draw[-] (node2_4) -- (node2_4b);
+
+\end{tikzpicture}

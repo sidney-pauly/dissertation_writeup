@@ -1,0 +1,48 @@
+With the atomic islands determined we can now generate new swtichstates.
+A switch state will be described as a combination of adjacent atomic
+islands. Further we want all the islands to be connected to 
+exactly one transformer. Having more than one transformer is possible, however to
+restrict the search space, only configurations with one feeding transformer
+will be considered initially.\\
+\\
+Within the literature this problem is known as graph partitioning, specifically
+as anchored or rooted graph partitioning\autocite{graph_partitioning}. The anchors
+or roots being the transformers. Knauer and Ueckerdt\autocite{graph_covering_terminology}
+introduce the following terminology for the graph covering problem: if there is a garp G (called
+the host graph) then
+the set of possible sub-graphs is called a template class. Elements of the 
+template class are then called template graphs. Each node or edge belongs to at least
+one of these templates (this is called a covering). A quality metric can then be applied to a covering.
+Graph partitioning is the same, with one additional constraint, that each node can only belong
+to exactly one template. A switch state is nothing else then a template in the is framework, whilst
+the host-graph is the graph of atomic islands. It is a partitioning problem as each node should only
+be contained in exactly one template (be part of one grid island) and contain at least
+one transformer, which act as the roots, making it a rooted partitioning problem.\\
+\\
+Within OTS the problem a similar problem exists: here cables
+are to be taken offline. I.e. they start with all switches closed and then open
+individual switches. The objective is generally to avoid disconnecting any
+sections of the grid at all. I.e. there should only be one big island. This is different
+from the situation in distribution grids: here it is ok to have different islands if they
+are connected to at least one transformer.\\
+\\
+As the presented here there are huge number of possible partitons of the grid.
+The number of partitions will be refered to as $n_p$.
+Just counting them is a non-trivial exercise. As an upper bound is safe
+to assume that
+
+\begin{equation}
+    n_p < 2^n_s 
+    \label{eq:sw_exp:upper_bound1}
+\end{equation}
+
+where $n_{s}$ are the number
+of switches. This is because each switch can either be opened or closed. However
+a lot of these switch configuration would lead to coverings where not all nodes
+are connected to at least one transformer. However the number of total switch
+configurations is still very large. This means testing them all is not feasible.\\
+\\
+A good starting point is to generate random switch states, to get an overview of what the search
+space looks like. In order to do this we implemented a custom flooding algorithm. The goal
+of the algorithm is to get grid states with exactly one transformer per grid island.
+In order to do this the 

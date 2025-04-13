@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=2]
+    \draw[->, line width=.7mm] (-1, 0) -- (1, 1.5) node[pos=.65](s){};
+    \draw[->, line width=.7mm] (-1, 0) -- (1, 0) node[pos=.5](p){}; 
+    \draw[->, line width=.7mm] (1, 0) -- (1, 1.4) node[pos=.5](q){};  
+
+    \draw[line width=.7mm] (0, 0) arc (0:45:.8);
+
+    \node[text width=2cm] at (s)[above] {\large $S$};
+    \node at ($(q) + (.1, 0)$)[right] {\large $Q$};
+    \node at ($(p) + (0, -.1)$)[below] {\large $P$};
+    \node at (-.3, .25) {\large $\theta$};
+\end{tikzpicture}
