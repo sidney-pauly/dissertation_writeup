@@ -107,7 +107,6 @@
 
 \input{sections/introduction/study-case.tex}
 
-
 \chapter{Theory}
 
 % \import{sections/theory/}{ac-basics.tex}
@@ -138,7 +137,7 @@
 
 \input{sections/methods/data_preperation.tex}
 
-\section{Switchstate explorer}
+\section{Switch states}
 
 \input{sections/methods/switchstate_explorer.tex}
 
@@ -148,33 +147,24 @@
 % Expalin algorithm:
 % Explain random element
 
-\section{Measures applied and justification}
+\section{Measures applied}
 
-% - power stats (avg, std, etc)
-% - voltage stats
-% - island size
-% - atomic island count
-% - line loading stats
-% - trafo loading stats
-% - net power (without trafo?)
-% - geo extend stats
-% - deveation from standard switchstate
-% - networkx measures
-% - Losses
+\input{sections/methods/measures.tex}
+
 
 \section{Scoring a switchstate}
 
 % Explain simple method used
 
-\chapter{Results}
+\section{Simulated annealing}
 
-\section{Proving the random switchstate generator works}
+\chapter{Results}
 
 % Show distributions of pre-powerflow data (perhaps per grid)
 
-\section{Happy case: suburban EWZ grid}
+\section{Good case: suburban grid}
 
-\section{Unhappy case: urban EWZ grid}
+\section{Bad case: urban grid}
 
 \section{Changing laod data over time}
 

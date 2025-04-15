@@ -74,10 +74,9 @@ In the node representation the graph is represented by the connections
 each node has and the admittance to each other node:
 
 \begin{equation}
-    \mathfrak{N_i} = \sum_{i \ne j, Y_{ij} > 0} (j, \ Y_{ij}) 
+    \mathfrak{N_i} = \sum_{i \ne j, Y_{ij} > 0} (j, \ Y_{ij})
+    \label{eq:graph_theory:node_form}
 \end{equation}
 
 This representation is especially useful for things like flooding algorithms where it is
 relevant to know which nodes can be reached from any given node in question. 
-
-\subsection{Graph measures}

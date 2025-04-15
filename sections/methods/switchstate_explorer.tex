@@ -1,48 +1,200 @@
-With the atomic islands determined we can now generate new swtichstates.
-A switch state will be described as a combination of adjacent atomic
-islands. Further we want all the islands to be connected to 
-exactly one transformer. Having more than one transformer is possible, however to
+With the atomic islands determined the next step is to generate new swtich states.
+A switch state is some combination of open and closed switches,
+that results in sets of adjacent nodes that have all switches
+between them closed and all switches to other
+sets opened.
+Further it is a requirement that all the sets
+that are being formed to contain exactly
+one transformer node. Having more than one transformer is possible, however to
 restrict the search space, only configurations with one feeding transformer
 will be considered initially.\\
 \\
-Within the literature this problem is known as graph partitioning, specifically
-as anchored or rooted graph partitioning\autocite{graph_partitioning}. The anchors
-or roots being the transformers. Knauer and Ueckerdt\autocite{graph_covering_terminology}
-introduce the following terminology for the graph covering problem: if there is a garp G (called
-the host graph) then
-the set of possible sub-graphs is called a template class. Elements of the 
-template class are then called template graphs. Each node or edge belongs to at least
-one of these templates (this is called a covering). A quality metric can then be applied to a covering.
+Within the literature this problem is known as graph partitioning, which is a form
+of graph covering. 
+The specific case needing to be solved here being anchored or 
+rooted graph partitioning\autocite{graph_partitioning}. The anchors
+or roots being the transformers.\\
+\\
+Knauer and Ueckerdt\autocite{graph_covering_terminology}
+introduce the following terminology for the graph covering problem:
+if there is a graph G (called
+the host graph) then the set of possible sub-graphs is called a template class.
+Elements of the template class are then called template graphs. A configuration 
+where each node belongs to at least
+one of these templates is called a covering. A quality metric can then be applied to a covering
+that grades how well the covering is performing in a certain aspect. For some of these metrics
+there exist optimizers that can reliably produce the covering with the best possible result for that
+specific quality.\\
 Graph partitioning is the same, with one additional constraint, that each node can only belong
-to exactly one template. A switch state is nothing else then a template in the is framework, whilst
-the host-graph is the graph of atomic islands. It is a partitioning problem as each node should only
-be contained in exactly one template (be part of one grid island) and contain at least
-one transformer, which act as the roots, making it a rooted partitioning problem.\\
+to exactly one template. Such a covering is called a partition.\\
+Finding switch states is finding graph partitions as each node should only
+be contained in exactly one template (be part of one sub-graph) and contain at least
+one transformer (one root), making it a rooted partitioning problem.\\
 \\
-Within OTS the problem a similar problem exists: here cables
-are to be taken offline. I.e. they start with all switches closed and then open
-individual switches. The objective is generally to avoid disconnecting any
-sections of the grid at all. I.e. there should only be one big island. This is different
-from the situation in distribution grids: here it is ok to have different islands if they
-are connected to at least one transformer.\\
-\\
-As the presented here there are huge number of possible partitons of the grid.
-The number of partitions will be refered to as $n_p$.
-Just counting them is a non-trivial exercise. As an upper bound is safe
+Even for small numbers of nodes there are a huge number of possible partitions
+of the grid.
+The number of partitions will be referred to as $n_p$.
+Just counting how many partitions exist is a non-trivial exercise.
+As an upper bound is safe
 to assume that
 
 \begin{equation}
-    n_p < 2^n_s 
+    n_p < 2^{n_s} 
     \label{eq:sw_exp:upper_bound1}
 \end{equation}
 
 where $n_{s}$ are the number
-of switches. This is because each switch can either be opened or closed. However
-a lot of these switch configuration would lead to coverings where not all nodes
-are connected to at least one transformer. However the number of total switch
-configurations is still very large. This means testing them all is not feasible.\\
+of switches. This is because each switch can either be opened or closed. However,
+a lot of these switch configurations would not result in valid a partition.\\
+An approach that could be taken is to generate switch states until a valid
+partition is produced. However, this approach is not desirables as
+there are a lot more invalid switch states than valid ones. As this
+is computationally expensive a better approach is desirable.
+
+\subsection{Random switch states through flooding}
+The first method taken was implementing our own graph flooding algorithm that
+produces valid partitions. A flooding method is well suited for the problem presented
+as it starts at a node and expands out from there to connected nodes. This automatically
+ensures that all nodes reached are connected. If the flooding starts at the 
+transformer node, it is also ensured that the generated template contains a
+transformer. To ensure that the entire graph is covered and that each template contains
+exactly one transformer, flooding can be simultaneously started at each transformer.
+To generate different switch states the choice of next node to flood to can be
+randomized.\\
 \\
-A good starting point is to generate random switch states, to get an overview of what the search
-space looks like. In order to do this we implemented a custom flooding algorithm. The goal
-of the algorithm is to get grid states with exactly one transformer per grid island.
-In order to do this the 
+Algorithmically this can be done by putting each node into its
+own set initially.
+Next a set of possible next options is formed by considering all neighbours of the
+current node. One of them is then randomly chosen to be added to the set.
+This process is then repeated until
+all nodes have been added to one of the templates. 
+
+\begin{algorithm}[h!]
+    \LinesNumbered
+    \SetAlgoNoEnd
+    \SetAlgoVlined
+    \DontPrintSemicolon
+
+    \SetKwFunction{GetRandomTemplates}{getRandomTemplates} % Define the function name
+    \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
+    \SetKwFunction{GetNextRandom}{getNextRandom}
+
+    \Fn{\GetRandomTemplates{$edgesByNode$, $n$, $startingNodes$}}{
+
+        \tcp{Initialize result templates with each of the initial nodes as the first element of the template}\label{alg:ssexp:random:init_templates}
+        $templates \gets \{\}$\;
+
+        \For{$n \in startingNodes$}{
+            $templates \gets templates \cup \{n\}$\;
+        }
+
+        \tcp{Add nodes to templates until all of them have been visited}\label{alg:ssexp:random:main_loop}
+        \While{$|visited| < n$}{
+
+            \tcp{Determine what the next options for expansion for each template are}
+            $next \gets \{\}$
+
+            \For{$t \in templates$}{
+                $currentNext \gets \{\}$\;
+                \For{$node \in t$}{
+                    \tcp{For each node in the current template add all neighbouring nodes as a next option, then remove all nodes that have already been visited}
+                    $currentNext \gets  (currentNext \cup edgesByNode[node]) \setminus visited$\; 
+                }
+                $next \gets next \cup \{currentNext\}$\; 
+            }
+
+            \tcp{Choose a random template to update and a random node to add to that template out of the possible choices}\label{alg:ssexp:random:get_next}
+            $templateChoice, \ nextNodeChoice \gets$ \GetNextRandom{$next$}\;
+            
+            \tcp{Update the chosen template and the overall visited nodes}
+            $templates[templateChoice] \gets templates[templateChoice] \cup nextNodeChoice$\;
+
+            $visited \gets visited \cup nextNodeChoice$\;
+
+        }
+
+        \KwRet $currentSets$\;
+    }
+    \caption{
+        Flooding algorithm to obtain random switch state.
+        $edgesByNode$ are the edges of the graph 
+        in node representation (see eq. \ref{eq:graph_theory:node_form}),
+        $n$ the total number of nodes and $startingNodes$ the node indices to start the flooding at.
+    }
+    \label{alg:ssexp:random}
+\end{algorithm}
+
+\autoref{alg:ssexp:random} outlines how such a random flooding algorithm may look like. The function \texttt{GetNextRandom}
+is left as an external call here as changing how that choice is being made will have an effect on the generated template classes.
+We have tried two approaches:
+
+\begin{enumerate}
+    \item Choose template to expand first, then choose node to expand
+    \item Pick an expansion option out of all possible expansion options
+\end{enumerate}
+
+These are very different in the probability of which templates gets expanded
+and thus the resulting template classes change in their distribution. Equations
+\autoref{eq:ssexp:template_probability1} and \autoref{eq:ssexp:template_probability2}
+show the probabilities of a template being expanded in any given iteration.
+
+\begin{equation}
+    p_{t, 1} = 
+    \begin{cases}
+        \frac{1}{|\{O_i \in O \ : \ |O_i| > 0\}|} & if \ |O_t| > 0\\
+        0 & if \ |O_t| = 0
+    \end{cases}
+    \label{eq:ssexp:template_probability1}
+\end{equation}
+
+\begin{equation}
+    p_{t, 2} = \frac{|O_t|}{\sum_{i=0}^{|T|} |O_i|}
+    \label{eq:ssexp:template_probability2}
+\end{equation}
+
+where $T$ refers to the current set of templates and $O_i$ to the set
+of current next expansion options for template $i$. In \autoref{eq:ssexp:template_probability1}
+the probability for a template to expand is the same for each template, as long as there
+are still expansion options. Meanwhile \autoref{eq:ssexp:template_probability2} implies that
+a template is more likely to expand if it has more expansion options.\\
+\\
+
+\begin{figure}[H]
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{img/switchstate_exploring/swiss_suburb/random_switchstate_distribution_tempalte_p.png}
+      \caption{}
+      \label{fig:ssexp:switchstate_sampels_trafo_p}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{img/switchstate_exploring/swiss_suburb/random_switchstate_distribution_choice_p.png}
+      \caption{}
+      \label{fig:ssexp:switchstate_sampels_choice_p}
+    \end{subfigure}
+    \caption{
+        Size of templates generated from \autoref{alg:ssexp:random}
+        using \autoref{eq:ssexp:template_probability1} (a) 
+        and \autoref{eq:ssexp:template_probability2} (b).
+        1000 samples taken. Colours match template colours shown in
+        \autoref{fig:data_prep:swiss_suburb_topology_patched}
+    }
+    \label{fig:ssexp:switchstate_sampels}
+\end{figure}
+
+\autoref{fig:ssexp:switchstate_sampels} shows the resulting template size
+distributions when applying \autoref{alg:ssexp:random}. As expected, the
+template sizes are more evenly distributed when 
+using \autoref{eq:ssexp:template_probability1}
+then when using \autoref{eq:ssexp:template_probability2}. 
+Furthermore, templates generated using
+\autoref{eq:ssexp:template_probability2} show a wider
+spread of template sizes, whilst almost covering the full range
+of sizes generated through \autoref{eq:ssexp:template_probability1}
+(The exception being transformers 0, where the template 
+never gets as large and transformer 1 where the template never 
+gets as small).\\
+\\
+Due to these results \autoref{eq:ssexp:template_probability2} will
+be used to generate switch state samples, as it should cover a wider
+range of possible switch states.

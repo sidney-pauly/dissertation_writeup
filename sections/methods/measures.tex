@@ -1,0 +1,141 @@
+There are two types of measures that can be applied on a template or on the entire grid 
+\begin{enumerate}
+  \item A priori measures that result from the grid topology and the parameters
+  of the grid components
+  \item Measures resulting from running powerflow (or other simulations)
+\end{enumerate}
+
+The former are quicker to obtain and are generally good to classify the templates while
+the later ones are the most relevant to decide how good a template performs.\\
+\\
+Ideally a correlation between measures of type one and measures of type two can be
+established, as that would make it possible to specifically generate templates
+maximizing those quantities.
+\\
+An added complication arises from the fact that measures that differ per template
+might not differ between partitions of the grid. In these cases measures need to be introduced
+that assess the difference of this measure between the templates. 
+
+\subsection{A priori measures}
+
+\subsubsection{Atomic island count}
+
+The simplest measure has already been introduced, it is just the number
+of atomic island per template: $|T_i|$. The number of atomic
+islands in the grid stays constant regardless of switch configuration.
+Thus, this measure cannot be used as a comparison between different
+partitions.
+Further the average template size also doesn't change as: 
+
+\begin{equation}
+  \frac{\sum_i^{|T|} |T_i|}{|T|} = \frac{n}{|T|}, \quad \forall T
+\end{equation}
+
+To compare the between different partitions the variance, quartiles,
+min or max can be used instead.
+
+\subsubsection{Component count}
+
+Component count can be more complicated than atomic island count, depending on how
+it is carried out. It could be desirable to exclude dead ends within a template.
+These can occur if there is an edge running to a switching cabinet with an open switch. 
+In that case it might be desirable to exclude all components in the switching cabinet
+and the edge leading to it. If components are excluded depending on the switch state 
+counts between partitions may be different and averages hold significance.\\
+Of particular interest might
+also be counting components of a specific type, like prosumers, cables, etc.
+
+\subsubsection{Geographical extend}
+
+The geographical extent of a grid can be measured in different ways. A simple way is to
+measure the distance, $d_{max}$ between the furthest nodes in the grid:
+
+\begin{equation}
+  d_{max} = max(\{d_{ij} : i, j < n\})
+  \label{eq:measures:geo_extend}
+\end{equation}
+
+Similar considerations about excluding components apply.
+
+\subsubsection{Net power}
+
+The net power of a template is the sum over all power produced and consumed:
+
+\begin{equation}
+  \sum_{i = 0}^n S_i
+\end{equation}
+
+Again this number does not change between partitions.
+
+\subsubsection{Deviation from standard switch state}
+
+There are two main ways to measure this quantify:
+
+\begin{enumerate}
+  \item Count how many switch positions are changed
+  \item Count the number of atomic islands that have changed template
+\end{enumerate}
+
+Option 1 is very well suited as an effort measurement, i.e. how much effort 
+it takes the grid operator to switch to that the new state. If $A_x = \{0, 1, ...\}$ 
+is the set of switch states where $x$ is a partition and switch positions
+are denoted as 1 for closed and 0 for open then
+
+\begin{equation}
+\Delta_{s} = |A_a \oplus A_b|
+\end{equation}
+
+expresses the number of changed switch positions.\\
+
+Option 2 is well suited to quantify how significant in terms of grid topology 
+the change is. If the number of templates stays constant between partitions then:
+
+\begin{equation}
+  \Delta_s = \sum_{i=0}^{|T_a|} ||T_{a, i}| - |T_{b, i}||
+\end{equation}
+
+\subsubsection{Degree}
+
+The degree of a node is the number of edges connected to it. Using \autoref{eq:graph_theory:node_form}
+the degree of a node can be written as:
+
+\begin{equation}
+  |\mathfrak{N_i}|
+\end{equation}
+
+The average degree
+of partitions may be different if open switches are not considered. Similarly, 
+if dead ends are disconnected it may change further.
+
+\subsubsection{Density}
+
+The density of a graph is defined as
+
+\begin{equation}
+  \frac{2 n_e}{n_n(n_n-1)} 
+\end{equation}
+
+It is both useful when applied to the full graph (with open switches removed)
+or to individual templates. It can be applied both to the atomic island 
+graph or the grid.
+
+\subsubsection{Shortest path length}
+
+The shortest path measures the shortest path between two nodes within a graph.
+Particularly useful is the average shortest path length, which considers
+the shortest path between any combination of nodes $i$ and $j$. This length can
+either be considered as 1 for every edge used, the actual distance in meters or
+as the impedance. Unfortunately
+the metric is relatively expensive as it scales with the number of nodes squared.\\
+An alternative is to take the average distance to a single node. In this case the
+transformer should be a good choice.
+
+\subsection{Powerflow based measures}
+
+
+
+% - power stats (avg, std, etc)
+% - voltage stats
+% - line loading stats
+% - trafo loading stats
+% - Losses

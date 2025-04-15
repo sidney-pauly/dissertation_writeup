@@ -7,11 +7,11 @@
 To test out different gird configurations some data preparation is required. The following
 steps will be showcased utilizing an anonymized grid topology of one of Venios' customers. 
 The specific grid data comes from a Swiss suburb. The data has been loaded through the api calls
-described perviously. This was done by choosing a geographical bounding box and obtaining grid
+described previously. This was done by choosing a geographical bounding box and obtaining grid
 data for all grids contained.\\
 The more grids, components and switches are in an area the more switch states are possible
 and the less likely it is to find optimal switch states for the entire area. For this example
-a grid area with the following elements was choosen:
+a grid area with the following elements was chosen:
 
 \begin{figure}[H]
     \begin{center}
@@ -57,7 +57,7 @@ For each edge that is not a switch, each of the atomic islands on either
 side are merged:
 
 
-\begin{algorithm}
+\begin{algorithm}[h!]
     \SetKw{New}{new}
     \SetKwFunction{Dict}{Dict}
 
@@ -100,7 +100,7 @@ produces an atomic island structure depicted in figure \ref{fig:data_prep:swiss_
         \includegraphics[width=.7\linewidth]{img/switchstate_exploring/swiss_suburb/topology_with_leafs.png}
     \end{center}
     \caption{
-        Atomic islands formed out of swiss suburbed grid data, laid out in a non-geographical way.
+        Atomic islands formed out of swiss suburban grid data, laid out in a non-geographical way.
         Atomic islands shown as nodes with 
         ordinary islands in green and islands with transformers as black squares. Connecting switches between the
         atomic islands are shown as edges.
@@ -126,12 +126,12 @@ case this reduces the number of atomic islands by 801.
 
 \begin{figure}[H]
     \begin{center}
-        \includegraphics[width=.9\linewidth]{img/switchstate_exploring/swiss_suburb/topology_sss.png}
+        \includegraphics[width=.8\linewidth]{img/switchstate_exploring/swiss_suburb/topology_sss.png}
     \end{center}
     \caption{
-        Atomic islands formed out of swiss suburbed grid data, laid out in a non-geographical way.
-        Ordinary atomic islands shown as circles, atomic islands with trafo as squares. Atomic islands connected in the
-        standard swtich case shown as the same colour. Leaf atomic islands merged.
+        Atomic islands formed out of Swiss suburban grid data, laid out in a non-geographical way.
+        Ordinary atomic islands shown as circles, atomic islands with transformer as squares. Atomic islands connected in the
+        standard switch case shown as the same colour. Leaf atomic islands merged.
     }
     \label{fig:data_prep:swiss_suburb_topology}
 \end{figure}
@@ -149,7 +149,20 @@ transformer in the SSS. This can happen if there is another neighbouring grid ou
 geographical bounds or due to data quality issues. To rectify this atomic islands like these will
 be merged into the island with the least overall grid load. This is to attempt and balance out
 the load on the transformer and make the SSS perform the best it can. In the example
-there is just one atomic island unconnected, atomic island number 94. 
+there are two clusters of unconnected atomic islands.
+Node 94 (grey) and the orange cluster of nodes.
+The result of merging them can be seen in \autoref{fig:data_prep:swiss_suburb_topology_patched}.
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[width=.8\linewidth]{img/switchstate_exploring/swiss_suburb/topology_sss_patched.png}
+    \end{center}
+    \caption{
+        Atomic islands from \autoref{fig:data_prep:swiss_suburb_topology} with unconnected islands
+        connected to their neighbour with the lowest net consumption.
+    }
+    \label{fig:data_prep:swiss_suburb_topology_patched}
+\end{figure}
 
 \subsection{Powerflow}
 
