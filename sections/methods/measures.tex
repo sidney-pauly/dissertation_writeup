@@ -188,3 +188,21 @@ headroom in case of load spikes. The maximum and the average utilization
 will be considered.
 
 \subsubsection{Losses}
+
+Line losses can be calculated by adding the power flowing through
+a cable in both directions. Power through a cable is given as:
+
+\begin{equation}
+  \begin{cases}
+  S_{ij} = V_i I_ij^*\\
+  S_{ji} = V_j I_ji^*
+  \end{cases}
+\end{equation}
+
+Adding these up leaves us with only the power lost:
+
+\begin{equation}
+S_{ij, lost} = S_{ij} + S_{ji}
+\end{equation}
+
+Minimizing power losses is desirable both for environmental and cost reasons.

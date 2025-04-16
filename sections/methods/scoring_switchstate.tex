@@ -1,0 +1,65 @@
+To compare switch states against each other a switch state score is required. 
+Within the OTS and SAP literature a monetary cost is usually used, by either
+calculating the cost of outages in the SAP\autocite{switch_allociation_lit_review} or by calculating the overall cost
+of energy generation in the case of OTS\autocite{ots_lit_review}. The two papers
+looking into OSSP or OSCP also use a cost function, here the cost of expansion
+is considered, i.e. how much it would cost to add new prosumers to the grid
+for different switch states.\\
+\\
+Directly optimizing for monetary cost is not desirable within the scope of this
+project. Firstly, it is hard to estimate what costs are associated
+to for example cable and transformer wear. Further there might even
+be monetary conflict between short term costs and long term costs, e.g.
+fewer line losses might be incurred by running the transformer at
+a higher utilization, which would incur long term costs. \\
+This project aims to develop a general switch state optimization
+framework
+applicable to all of Venios' customers. Different grid operators
+in different regions, might pay different amounts for components, maintenance, electricity
+or penalty charges.\\
+Lastly this optimizer might be used in conjunction with different optimizers.
+If a grid operator for example has to connect a new prosumer to their grid,
+then different options might be weight depending on how they could somehow
+accommodate the new prosumer. If the switch state optimizer is able
+to return a result where the additional prosumer can be connected without
+any grid expansion and other options do require grid expansion, then
+using switching will likely always be cheaper\autocite{venios}. 
+This is to highlight that an optimizer that optimizes for operational
+grid parameters will be easier to accommodate then one that already optimizes
+for cost.\\
+\\
+As there is no precedent for non-monetary cost functions for OSSP or OSCP adjecent
+problems we developed our own grid score. The aim of this score
+is to balance different operational parameters of the grid and unify them into a single number.
+As different grid operators will have different requirements an additional aim
+is to make the cost function easily fine tuneable by the grid operator themselves.
+To achieve this the cost
+function uses the operational grid quality parameters already known and
+used by the grid operators and makes it possible to weigh them against each other.\\
+
+\subsubsection{The score function}
+
+The score is calculated as follows:
+
+\begin{align}
+    s &= s_{voltage} * w_{voltage}\\
+      &+ s_{avg \ line} * w_{avg \ line} + s_{max \ line} * w_{max \ line}\\
+      & + s_{avg \ trafo} * w_{avg \ trafo} + s_{max \ trafo} * w_{max \ trafo}\\
+      & + s_{losses} * w_{losses},
+\end{align}
+
+where $s_x$ are the individual score elements and $w_x$ the weights
+applied. The weights are normalized to sum to 1:
+
+\begin{equation}
+    w_{voltage} + w_{avg \ line} + w_{max \ line} + w_{avg \ trafo} + w_{max \ trafo} + w_{losses} = 1.
+\end{equation}
+
+All individual scores $s_x$ are also in the range from 0 to 1, s.t. the
+entire score sums up to 1.\\
+\\
+The individual scores are calculated as such:
+
+\begin{equation}
+    s_{voltage} = 
+\end{equation}

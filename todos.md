@@ -15,5 +15,5 @@
     - [] Performance benchmarks (pandapower, argh....)
     - [] Implement some remaining measures
     - [] Produce correlation plots
-    - [] Vary time of day and year
-    - [] Improve simulated anealing
+    - [x] Vary time of day and year
+    - [x] Improve simulated anealing
