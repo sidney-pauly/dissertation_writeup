@@ -132,10 +132,59 @@ transformer should be a good choice.
 
 \subsection{Powerflow based measures}
 
+\subsubsection{Voltage}
 
+The voltages of the nodes are a direct result of running powerflow 
+(see \autoref{eq:pf:gs_pf} and \autoref{eq:pf:nr_pf}). Of particular
+interest are the minimum and maximum voltages $V_{min}$ and $v_{max}$
+over the entire. Grid operators have regulatory limits for the maximum
+voltage delta allowed at each household, e.g. no more than $10\%$
+deviation from the rated grid voltage of $440V$\autocite{venios}.
 
-% - power stats (avg, std, etc)
-% - voltage stats
-% - line loading stats
-% - trafo loading stats
-% - Losses
+\subsubsection{Power}
+
+Power as an output quantity is only relevant for the slack node as its
+given as an input constraint for all other nodes. It can be calculated
+using equations \ref{eq:ac:ohm_complex} and \ref{eq:pf:current_at_node}:
+
+\begin{equation}
+  S_i = V_i I_i^* = V_i \sum_{j = 0}^N y_{ij} V_j^*
+\end{equation}
+
+\subsubsection{Transformer utilization}
+
+Within the transformer specification specifies the reated Power $P_{rated}$.
+The transformer utilization can thus be specified as such:
+
+\begin{equation}
+  \eta_t = \frac{P_{trafo}}{P_{rated}}
+\end{equation}
+
+Lower transformer utilization is desirable as it reduces wear and increases
+headroom in case of load spikes. The maximum and the average utilization
+will be considered.
+
+\subsubsection{Line utilization}
+
+The current within a cable can be derived from the voltage delta at its
+end and its admittance:
+
+\begin{equation}
+  I_{ij} = (V_j - V_i)y_{ij}
+\end{equation}
+
+The sign here comes from how the cable is specified in the input data. If it is
+specified from going from $a \to b$ then the current is positive, otherwise negative.\\
+\\
+The cables' specification specifies the rated current $I_{rated}$. The utilization
+can thus be defined as:
+
+\begin{equation}
+  \eta_{ij} = \frac{I_{ij}}{I_{ij, rated}}
+\end{equation}
+
+Lower cable utilization is desirable as it reduces wear and increases
+headroom in case of load spikes. The maximum and the average utilization
+will be considered.
+
+\subsubsection{Losses}

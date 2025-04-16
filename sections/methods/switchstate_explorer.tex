@@ -70,10 +70,7 @@ This process is then repeated until
 all nodes have been added to one of the templates. 
 
 \begin{algorithm}[h!]
-    \LinesNumbered
-    \SetAlgoNoEnd
-    \SetAlgoVlined
-    \DontPrintSemicolon
+
 
     \SetKwFunction{GetRandomTemplates}{getRandomTemplates} % Define the function name
     \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
@@ -198,3 +195,87 @@ gets as small).\\
 Due to these results \autoref{eq:ssexp:template_probability2} will
 be used to generate switch state samples, as it should cover a wider
 range of possible switch states.
+
+\subsection{Random adjacent switch state}
+
+Some optimization algorithms work by exploring neighbouring states
+of an initial input state. To use these on the atomic island graphs
+it is therefore useful to have an algorithm that returns a (random) 
+new partition based on the current one. \autoref{alg:ssexp:adjacent}
+returns a new partition with the exactly one atomic island changing
+templates. 
+
+\begin{algorithm}[H]
+    
+    \SetKwFunction{GetRandomAdjacentTemplates}{getRandomAdjacentTemplates} % Define the function name
+    \SetKwFunction{Clone}{clone} % Define the function name
+    \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
+    \SetKwFunction{GetRandom}{getRandom}
+    \SetKw{KwContinue}{continue}
+
+    \Fn{\GetRandomAdjacentTemplates{$edgesByNode$, $templates$}}{
+
+        \tcp{
+            Make a list of all nodes that are on a template boundary
+        }
+        $possibleFlips \gets \{\}$\;
+        \For{$template \in templates$}{
+            $currentPossibleFlips \gets \{\}$\;
+            \For{$node \in tempalte$}{
+                $currentPossibleFlips \gets currentPossibleFlips \cup edgesByNode[node]$\;
+            }
+            $possibleFlips \gets possibleFlips \cup (currentPossibleFlips \setminus template)$\;
+        }
+
+        \While{true}{
+            
+            \tcp{Clone the templates to leave the old ones untouched}
+            $newTemplates \gets$ \Clone{$templates$}\;
+
+            \tcp{Get a random choice of template to enlarge and node to take from another template}
+            $templateChoice,\ nodeChoice \gets$ \GetRandom{$possibleFlips$}\;
+
+            \tcp{Update the chosen template with its new node}
+            $newTemplates[templateChoice] \gets newTemplates[templateChoice] \cup \{nodeChoice\}$\;
+            
+            \tcp{Remove the node from its old template}
+            \For{$tempalte \in newTemplates$}{
+                $template \gets tempalte \setminus \{nodeChoice\}$\; 
+            }
+
+            \tcp{
+                Check that each template is still valid, i.e. that it still
+                has all nodes connected to each other. If not try another random choice
+                }
+            \For{$template \in newTemplates$}{
+
+                $edges \gets \{\}$\;
+
+                \For{$node \in template$}{
+                    $edges \gets edges \cup ((i) \times edgesByNode[node])$
+                }
+
+                \If{$|$\GetConnectedIslands{$nodes$, $edges$}$| > 1$}{
+                    \KwContinue \;
+                }
+            }
+
+            
+            \KwRet $newTemplates$\;
+        }
+    }
+    \caption{
+        Algorithm to get a random new partition with one node changing templates.
+        $edgesByNode$ are the edges of the graph 
+        in node representation (see eq. \ref{eq:graph_theory:node_form}),
+        $teplates$ is an existing partition of a graph.
+    }
+    \label{alg:ssexp:adjacent}
+\end{algorithm}
+
+The method \texttt{getRandom} in \autoref{alg:ssexp:adjacent} works the same
+as the \texttt{getNextRandom} in \autoref{alg:ssexp:random}. The probabilities
+for a template to expand are similar as presented in equations \ref{eq:ssexp:template_probability1}
+and \ref{eq:ssexp:template_probability1}, however $O_i$ instead refers to the number
+of nodes connected to a template over an open switch or in other words nodes connected to a 
+template belonging to a different template.

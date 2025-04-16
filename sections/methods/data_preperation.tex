@@ -54,45 +54,70 @@ To do this algorithmically the edges are considered in edge list
 form (\ref{eq:graph_theory:edge_list}). They can then be iterated over.
 The nodes are initially put into their own atomic island by themselves.
 For each edge that is not a switch, each of the atomic islands on either
-side are merged:
-
+side are merged.
 
 \begin{algorithm}[h!]
+    \LinesNumbered
+    \SetAlgoNoEnd
+    \SetAlgoVlined
+    \DontPrintSemicolon
+
+    \SetKwFunction{GetConnectedIslands}{getConnectedIslands} % Define the function name
+    \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
+    \SetKwFunction{GetRandom}{getRandom}
+
     \SetKw{New}{new}
     \SetKwFunction{Dict}{Dict}
 
+    \Fn{\GetConnectedIslands{$nodes$, $edges$}}{
 
-    $I \gets $ \{\}\;
-    $island\_of\_node \gets $ \New \Dict{}\;
+        \tcp{Initialize all nodes within their own islands and create node to island lookup}
+        $I \gets $ \{\}\;
+        $islandOfNode \gets $ \New \Dict{}\;
 
-    \ForEach{$i < N$}{
-        $I_i \gets $  \{ $i$ \}\;
-        $I \gets I \cup \{I_i$\}\;
-        $island\_of\_node[i] \gets I_i$\;
-    }
-
-    \ForEach{$(i, j) \in edges \setminus switches$}{
-
-        $I \gets I \setminus {island\_of\_node[i]}$\;
-        $I \gets I \setminus {island\_of\_node[j]}$\;
-        $M \gets island\_of\_node[i] \cup island\_of\_node[j]$\;
-
-        \ForEach{$k \in M$}{
-            $island\_of\_node[i] \gets M$\;
+        \ForEach{$node \in nodes$}{
+            $I_i \gets   \{ node \}$\;
+            $I \gets I \cup \{I_i$\}\;
+            $islandOfNode[i] \gets I_i$\;
         }
 
-        $I \gets I \cup \{M$\}\;
-    }
+        \tcp{For any edges merge the islands of the nodes on either end}
+        \ForEach{$(i, j) \in edges$}{
+
+            \tcp{Remove the old islands}
+            $I \gets I \setminus {islandOfNode[i]}$\;
+            $I \gets I \setminus {islandOfNode[j]}$\;
+
+            \tcp{Make a new merged island, update lookup and add that island to the overall list}
+            $M \gets islandOfNode[i] \cup islandOfNode[j]$\;
+            \ForEach{$k \in M$}{
+                $islandOfNode[i] \gets M$\;
+            }
+
+            $I \gets I \cup \{M\}$\;
+        }
     
-    \caption{Algorithm to obtain atomic islands}
+        \KwRet $I$\;
+    }
+
+    \caption{
+        Algorithm to obtain all connected subgraphs (or islands) within a given graph, by providing
+        a set of $nodes$ and a set of $edges$ as defined in \autoref{eq:graph_theory:edge_list}
+    }
     \label{alg:data_prep:atomic_islands}
 \end{algorithm}
 
-This algorithm yields the atomic islands, represented as a set of node indices.\\
-Its worth noting that this algorithm can be used for any kind of island formation,
-it will come in useful again later when different forms of islands need constructing.\\
+\autoref{alg:data_prep:atomic_islands} yields the atomic islands if invoked 
+with switches removed from the list of edges:
 
-Applying this procedure to the grid mentioned in table \ref{table:data_prep:swiss_suburban_numbers},
+\begin{equation}
+    input = edges \setminus switches
+\end{equation}
+
+The same algorithm can be used to generate any other kind of connected subgraphs,
+depending on the edges removed.\\
+\\
+Applying \ref{alg:data_prep:atomic_islands} to the grid area mentioned in table \ref{table:data_prep:swiss_suburban_numbers},
 produces an atomic island structure depicted in figure \ref{fig:data_prep:swiss_suburb_with_leafs}.
 
 \begin{figure}[H]
