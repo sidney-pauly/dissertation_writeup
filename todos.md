@@ -7,6 +7,7 @@
     - [x] Simulated anealing
 
     - [] Results
+
     - [] Performance benchmark
     - [] Time series data endpoint
 - Experimentation work:
@@ -14,8 +15,8 @@
     - [x] Fix switch state generation bugs
     - [x] Vary time of day and year
     - [x] Improve simulated anealing
-    - [] Validate things with online EWZ data
-    - [] Implement some remaining measures
-    - [] Produce correlation plots
+    - [x] Validate things with online EWZ data
+    - [x] Implement some remaining measures
+    - [x] Produce correlation plots
     - [] Wider simulated annealing test run
     - [] Performance benchmarks (pandapower, argh....)
