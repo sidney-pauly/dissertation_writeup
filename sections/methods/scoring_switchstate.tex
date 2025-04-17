@@ -37,29 +37,139 @@ To achieve this the cost
 function uses the operational grid quality parameters already known and
 used by the grid operators and makes it possible to weigh them against each other.\\
 
-\subsubsection{The score function}
+\subsubsection{The scoring function}
 
 The score is calculated as follows:
 
 \begin{align}
-    s &= s_{voltage} * w_{voltage}\\
-      &+ s_{avg \ line} * w_{avg \ line} + s_{max \ line} * w_{max \ line}\\
-      & + s_{avg \ trafo} * w_{avg \ trafo} + s_{max \ trafo} * w_{max \ trafo}\\
-      & + s_{losses} * w_{losses},
+    \begin{split}
+        s &= s_{voltage} * w_{voltage}\\
+        &+ s_{line \ avg} * w_{line \ avg} + s_{line \ max} * w_{line \ max}\\
+        & + s_{trafo \ avg} * w_{trafo \ avg} + s_{trafo \ max} * w_{trafo \ max}\\
+        & + s_{loss} * w_{loss},
+    \end{split}
+    \label{eq:score}
 \end{align}
 
 where $s_x$ are the individual score elements and $w_x$ the weights
 applied. The weights are normalized to sum to 1:
 
 \begin{equation}
-    w_{voltage} + w_{avg \ line} + w_{max \ line} + w_{avg \ trafo} + w_{max \ trafo} + w_{losses} = 1.
+    w_{voltage} + w_{line \ avg} + w_{line \ max} + w_{trafo \ avg} + w_{trafo \ max} + w_{losses} = 1.
 \end{equation}
 
 All individual scores $s_x$ are also in the range from 0 to 1, s.t. the
 entire score sums up to 1.\\
 \\
-The individual scores are calculated as such:
+
+\subsubsection{Voltage score}
+
+The voltage score is defined as:
 
 \begin{equation}
-    s_{voltage} = 
+    s_{voltage} = clamp(\frac{V_{rated}*(1+\Delta_{V}) - V_{max}
+                +       V_{min} - V_{rated}*(1-\Delta_{V})}
+                {{V_{rated}*\Delta_{V}}*2}),
+                \label{eq:score:voltage}
 \end{equation}
+
+where $V_{rated}$ is the rated operating voltage of the grid, $\Delta_V$ the maximum allowed
+voltage deviation as a fraction of the rated voltage, $V_{min}$ the minimum voltage  within
+the switch state, $V_{max}$ the maximum voltage within the switch state and $clamp()$ being
+defined as:
+
+\begin{equation}
+    clamp(x) =
+    \begin{cases}
+        0 & \text{if} \ x < 0\\
+        x & \text{if} \ 0 < x < 1\\
+        1 & \text{if} \ x > 1
+    \end{cases}.
+\end{equation}
+
+\subsubsection{Line utilization score}
+
+The maximum line utilization score is defined as
+
+\begin{equation}
+    s_{line \ avg} = clamp(\frac{\eta_{line \ max} - max(\{\eta_{ij} : (i, j) \in \mathfrak{E}_{ij}\})}{\eta_{line \ max}})
+\end{equation}
+
+average score as
+
+\begin{equation}
+    s_{line \ avg} = clamp(\frac{\eta_{line \ avg} - \frac{\sum_{(i, j) \in \mathfrak{E}_{ij}} \eta_{ij}}{|\mathfrak{E}_{ij}|}}{\eta_{line \ avg}}),
+\end{equation}
+
+where $\eta_{line \ max}$ and $\eta_{line \ avg}$ are the maximum allowed maximum or average utilization
+values before the score drops to 0. $\eta_{ij}$ is used as defined in \autoref{eq:measures:cable_utilization}.
+$\mathfrak{E}_{ij}$ is the set of all cables of the grid as defined in \autoref{eq:graph_theory:edge_list}
+(Important: it is not just the set of edges of one template).
+
+\subsubsection{Transformer utilization score}
+
+The transformer utilization score is defined similarly to the cable utilization score with
+
+\begin{equation}
+    s_{trafo \ avg} = clamp(\frac{\eta_{trafo \ max} - max(\{\eta_{t} : 0 < t < |T|\})}{\eta_{trafo \ max}})
+\end{equation}
+
+average score as
+
+\begin{equation}
+    s_{trafo \ avg} = clamp(\frac{\eta_{trafo \ avg} - \frac{\sum_{t = 0}^{|T|} \eta_t}{|T|}}{\eta_{trafo \ avg}}),
+\end{equation}
+
+where $T$ is the set of templates and $\eta_{trafo \ max}$ as well as $\eta_{trafo \ avg}$ work similarly
+as for the cable score.
+
+\subsubsection{Line loss Score}
+
+To calculate a line loss score that is comparable between switch states a suitable
+normalization method needs to be employed. The approach taken by us is to use the 
+sum over all generated and consumed power as such:
+
+\begin{equation}
+    |S|_{total} = \sum_{i=0}^N |P_i| + |Q_i|.
+\end{equation}
+
+The rational here being, that the more power is generated or consumed within a grid
+the more losses should also occur. The absolute value is calculated are component wise
+and not as a magnitude as resistive and reactive power losses also add up component wise.\\
+\\
+The line loss score is then defined as such:
+
+\begin{equation}
+    s_{loss} = clamp(\frac{\alpha \sum_{(i, j) \in \mathfrak{E}_{ij}} P_{ij, \ loss} + Q_{ij, \ loss}}{|S|_{total}}),
+\end{equation}
+
+where $\alpha$ is a correction term as line losses are usually an order of magnitude
+smaller than $|S|_{total}$.
+
+\subsubsection{Limits and weights used}
+
+\begin{figure}[H]
+    \begin{tabular}{l l p{10cm}}
+        Limit or weight & Value & Notes\\
+        \hline
+        $V_{rated}$         & $400V$ & Voltage within the 3-phase low voltage grid\\
+        $\Delta_V$          & $0.15$ & $15\%$ voltage deviation is often used as an acceptable limit by grid operators\autocite{venios}\\
+        $\eta_{line \ avg}$ & $1$    & \\
+        $\eta_{line \ max}$ & $2.5$  & Rated current is not maximum allowed current, as such higher currents may occur\\
+        $\eta_{trafo \ avg}$& $1$    & \\
+        $\eta_{trafo \ max}$& $1.5$  & Rated power is not maximum allowed power, as such higher currents may occur\\
+        $\alpha$            & $40$   & Determined through trial and error\\
+        $w_{voltage}$       & $1/4$  & All 4 score categories set to contribute equally\\
+        $w_{line \ avg}$    & $1/8$  & All 4 score categories set to contribute equally, there are 2 line utilization measures\\
+        $w_{line \ max}$    & $1/8$  & All 4 score categories set to contribute equally, there are 2 line utilization measures\\
+        $w_{trafo\ avg}$    & $1/8$  & All 4 score categories set to contribute equally, there are 2 transformer utilization measures\\
+        $w_{trafo\ max}$    & $1/8$  & All 4 score categories set to contribute equally, there are 2 transformer utilization measures\\
+        $w_{loss}$          & $1/4$  & All 4 score categories set to contribute equally
+    \end{tabular}
+    \caption{Values used for the score function \autoref{eq:score}}
+    \label{table:score:values}
+\end{figure}
+
+As mentioned all weights and limits are chosen such that they are meaningful to grid operators
+and can be tweaked by them as needed. For all switch state scores within this work the values
+in \autoref{table:score:values} have been used.

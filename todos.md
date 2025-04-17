@@ -1,19 +1,21 @@
 - Write up work
-    - [] study case
-    - [] Time series data endpoint
-    - [] Performance benchmark
-    - [] Powerflow data preperation
     - [x] Adjecent switch state generator
     - [x] Powerflow based measures
-    - [] Switch state scoring
-    - [] Simulated anealing
+    - [x] Switch state scoring
+    - [] study case
+    - [] Powerflow data preperation
+    - [x] Simulated anealing
+
     - [] Results
+    - [] Performance benchmark
+    - [] Time series data endpoint
 - Experimentation work:
     - [x] Line losses
     - [x] Fix switch state generation bugs
-    - [] Validate things with online EWZ data
-    - [] Performance benchmarks (pandapower, argh....)
-    - [] Implement some remaining measures
-    - [] Produce correlation plots
     - [x] Vary time of day and year
     - [x] Improve simulated anealing
+    - [] Validate things with online EWZ data
+    - [] Implement some remaining measures
+    - [] Produce correlation plots
+    - [] Wider simulated annealing test run
+    - [] Performance benchmarks (pandapower, argh....)

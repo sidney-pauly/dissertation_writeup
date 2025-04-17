@@ -1,0 +1,106 @@
+\subsection{Analogy to physical annealing}
+
+Simulated annealing is an optimization method that mimics the
+physical process of cooling materials\autocite{simulated_annealing}.
+Statistical mechanics teaches us that the probability of a system with
+many particles to be in a specific state depends on its energy
+
+\begin{equation}
+    p(\{r_i\}) = e^{(-E(\{r_i\})/k_B T)},
+\end{equation}
+
+where $k_B$ is Boltzmann's constant, $T$ the temperature, $\{r_i\}$
+the set of particle states and $E(\{r_i\})$ the energy of the entire state.
+It can be seen that high energy states are more probable at higher temperatures.
+However, at lower temperature these higher energy levels become more and more
+unlikely. When a material is cooled
+that has the ability to configure
+into lower energy states it will do so as these lower energy states
+are more probable. This process of cooling a material, often with a
+specified cooling schedule, to make it settle into a specific type of configuration
+is also called annealing, hence the name of the optimization method.\\
+The process can be used for optimization by starting with a system at higher
+energies and then "cooling" it, hoping for it to settle into a lower energy level.
+A key advantage of this method is that it doesn't get stuck in local optima, 
+other optimizers. This is because the probability for a higher energy state,
+even though it is lower, it is not zero, especially at higher temperatures.
+
+% \subsection{How this relates to switch states}
+
+% To make simulated annealing work we have to model the switch state
+% configurations like a statistical system. Firstly 
+
+\subsection{Algorithm}
+
+Simulated annealing as an algorithm works by exploring adjacent
+configurations of a system and then assessing the probability of
+the system going into the new state based on the energy
+of the new and old state. A random draw is then made
+utilizing that probability and if it comes out positive, the system
+changes into that new state. 
+
+\begin{algorithm}[H]
+    
+    \SetKwFunction{GetRandomAdjacentState}{getRandomAdjacentState} % Define the function name
+    \SetKwFunction{UpdateTemperature}{updateTemperature}
+    \SetKwFunction{SimulatedAnnealing}{simulatedAnnealing}
+    \SetKwFunction{GetSystemEnergy}{getSystemEnergy}
+    \SetKwFunction{P}{p}
+    \SetKwFunction{Random}{random}
+
+    \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
+    \SetKw{KwContinue}{continue}
+
+    \Fn{\SimulatedAnnealing{$state$, $minTemperature$}}{
+
+        $T \gets 1$\;
+        $E_{cur} \gets$ \GetSystemEnergy{$state$}\;
+
+        \While{$T > minTemperature$}{
+
+            $newState \gets$ \GetRandomAdjacentState{$state$}\;
+            $E_{new} \gets$ \GetSystemEnergy{$newState$}\;
+
+            $\Delta E \gets E_{cur}-E_{new}$\;
+
+            \If{\P{$\Delta E$, $T$} $>$ \Random{}}{
+                $state \gets newState$\;
+                $E_{cur} \gets E_{new}$\; 
+            }
+
+            $T \gets $ \UpdateTemperature($T$)\;
+
+        }
+
+        \KwRet $state$\;
+    }
+    \caption{
+        Simulated annealing algorithm, where \texttt{p()} is the probability of changing
+        states (returns a probability between 0 and 1) and \texttt{random()} produces a
+        random number between 0 and 1.
+    }
+    \label{alg:annealing}
+\end{algorithm}
+
+\subsection{Making it work for switch states}
+
+\autoref{alg:annealing} show an implementation of the simulated annealing algorithm.
+There are many ways to implement the probability function \texttt{p()}. For this work
+a probability closely resembling the Boltzmann probability was chosen:
+
+\begin{equation}
+    p_c(\Delta E, T) = \begin{cases}
+        1 & \text{if} \ \Delta E \leq 1\\
+        e^{(-\gamma \Delta E/ T)} & \text{if} \ \Delta E > 1
+    \end{cases} 
+\end{equation}
+
+where $\gamma$ is a constant that can be tweaked for best optimization performance.
+For the energy of the system the scoring function (\autoref{eq:score}) is used:
+
+\begin{equation}
+    E = 1 - s
+\end{equation}
+
+Lastly to get a new random adjacent switch state \autoref{alg:ssexp:adjacent}
+is used.
