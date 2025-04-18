@@ -1,24 +1,41 @@
-The electrical grid is divided into multiple levels. Whilst the higher levels of the grid connect
-the entire countries the lower level grids go from house to house and are hence also called 
-distribution grids. In the past electricity was mostly produced at higher levels in power plants
-and consumed at the lower level. The load patterns in the lower levels of the grid where
-mostly predictable as they closely followed peoples work days. All this meant that a simpler setup
-in the these girds was sufficient. In the past 20-30 this has changed. A lot of energy is now
-being produced at these lower levels, e.g. through solar panels. Further, load patterns have shifted
-as well with people charging their electric cars, heating with heat pumps and generally consuming
-their energy at different times (e.g. because of home office)\autocite{venios}.
-To fix load and instability issues arising
-from this, there are broadly two options, either you build more physical infrastructure "blindly" to always
-have a safe margin or you gather insight into the grid by measuring and simulating laods. This can either
-be used in real time to actively control the grid or beforehand to have a better idea of load margins as well
-as to more efficiently add new physical infrastructure. One active control measure that can be taken
-to optimize load is by switching switches in the grid controlling how much of it is interconnected.
-Generally a distribution grid connects up a few houses to a few streets depending on the region or country.
-Each of these "grid islands" is connected up to the higher level through at least one transformer. By switching
-prosumers can be assigned to different islands and islands can be merged or split. Doing so changes
-the grid utilization characteristics in a non-local and non-linear way.\\
-The aim of this dissertation is to explore the effects switching switches has on the grid, by simulating them
-and measuring effects on various grid load and stability quantities. In a second step this analysis can then be
-used to develop algorithms that find an improved or even optimal switch state. A possible name for this problem
-could be Optimal Switch State Problem (OSSP) or Optimal Switch Configuration Problem (OSCP).
-
+The electrical grid is divided into multiple levels. 
+Whilst the higher levels of the grid connect
+entire countries the lower level grids go from house
+to house and are hence also called 
+distribution grids. In the past electricity
+was mostly produced at higher grid levels in power plants
+and consumed at the lower levels. The load patterns in
+the lower levels of the grid where
+mostly predictable as they closely followed peoples
+work days. All this meant that a simpler setup
+in the these girds was sufficient. In the past 20-30
+this has changed. A lot of energy is now
+being produced at these lower levels, e.g. through solar
+panels. Additionally, load patterns have also shifted
+with the introduction of electric cars,
+heat pumps and home office\autocite{venios}.\\
+\\
+There are broadly two approaches that can be taken to solve congestion and instability 
+issues that arise from these recent developments. The first is to build more
+physical infrastructure "blindly" to
+ensure a safe operating margin for any grid state that is conceivable. 
+The alternative is to gain insight into the grids' operation through measurements,
+predictions and simulations, in industry this is called building a "digital twin".
+Insights gained through this process can be both used in planning and operation.\\
+During planning they help to get a better idea of what actual safety margin
+is required and to thus build physical infrastructure more efficiently.\\
+During operation, it can be
+used to take active measures, like shutting down prosumers and 
+thus preventing critical load conditions.\\
+\\
+One measure that can be taken, which is both useful during planning and operation, is to
+change switch configurations within the grid. By switching switches one
+can affect which consumers get supplied by which producers and through what
+paths. However, switching a switch has non-local and non-linear effects.
+This means it is very hard to predict the effect a changed switch state
+will have on the grid. \\
+\\
+In this work we quantify these effects through the simulation of
+different switch states.
+We then use this knowledge to develop optimizers that can reliably
+find improved switch states.

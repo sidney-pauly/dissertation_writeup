@@ -1,0 +1,40 @@
+To compare switch states against each other a switch state score is required. 
+Within the OTS and SAP literature a monetary cost is commonly used. It either
+calculates the cost of outages in case of the SAP\autocite{switch_allociation_lit_review}
+or by calculating the overall cost
+of energy generation in the case of OTS\autocite{ots_lit_review}. The two papers
+looking into OSSP or OSCP also use a cost function, here the cost of expansion
+is considered, i.e. how much it would cost to add new prosumers to the grid
+for different switch states.\\
+\\
+Directly optimizing for monetary cost is not desirable within the scope of this
+project. Firstly, it is hard to estimate what costs are associated
+to for example cable and transformer wear. Further there might even
+be conflicts between short term costs and long term costs, e.g.
+fewer line losses might be incurred by running the transformer at
+a higher utilization, which would in turn incur long term maintenance costs.\\
+This project aims to develop a general switch state optimization framework
+applicable to all of Venios' customers. Different grid operators
+in different regions, might pay different amounts for components, maintenance, electricity
+or penalty charges.\\
+Lastly this optimizer might be used in conjunction with different optimizers.
+If a grid operator for example has to connect a new prosumer to their grid,
+then different options might be weight depending on how they could somehow
+accommodate the new prosumer. If the switch state optimizer is able
+to return a result where the additional prosumer can be connected without
+any physical grid expansion and other options do require physical grid expansion, then
+using switching will likely always be cheaper\autocite{venios}. 
+This is to highlight that an optimizer that optimizes for operational
+grid parameters will be easier to accommodate then one that already optimizes
+for cost.\\
+\\
+As there is no precedent for non-monetary cost functions for OSSP or OSCP adjecent
+problems we introduce our own score within this work. The main goal of this score
+is to balance different operational parameters and unify them into a single number.
+As different grid operators will have different requirements an additional aim
+is to have this score be easily fine tuneable by the grid operator themselves.
+To achieve this we propose a scoring equation
+that uses operational grid quality parameters already known and
+used by the grid operators. The proposed equation also enables 
+the grid operator to weigh these different aspects, thus enabling them to fine
+tune the score to their specific needs.\\

@@ -5,12 +5,9 @@
 % Explain the problem with not connected parts of the grid in the satandard switch case and the solution
 
 To test out different gird configurations some data preparation is required. The following
-steps will be showcased utilizing an anonymized grid topology of one of Venios' customers. 
-The specific grid data comes from a Swiss suburb. The data has been loaded through the api calls
-described previously. This was done by choosing a geographical bounding box and obtaining grid
-data for all grids contained.\\
-The more grids, components and switches are in an area the more switch states are possible
-and the less likely it is to find optimal switch states for the entire area. For this example
+steps will be showcased utilizing suburban grid data from the aforementioned
+Swiss grid operator. The data has been loaded through API calls specified in
+\autoref{sec:appendix:api}.\\ For this example
 a grid area with the following elements was chosen:
 
 \begin{figure}[H]
@@ -33,7 +30,8 @@ a grid area with the following elements was chosen:
 
 \subsection{Atomic islands}
 
-In a first step what will here be called atomic islands have to be formed. Figure \ref{fig:data_prep:atomic_islands}
+To make topological analysis easy and performant atomic islands will be formed.
+Figure \ref{fig:data_prep:atomic_islands}
 shows some arbitrary grid topology with some nodes and edges. Atomic islands are clusters
 of nodes and edges which can not be subdivided by switches further. In the example shown
 it is easy to see that two non-divisible clusters can be formed. One containing nodes
@@ -41,7 +39,7 @@ it is easy to see that two non-divisible clusters can be formed. One containing 
 
 \begin{figure}[H]
     \begin{center}
-        \includegraphics[width=.7\linewidth]{img/atomic_island.png}
+        \includegraphics[width=.6\linewidth]{img/atomic_island.png}
     \end{center}
     \caption{
         Example grid topology with 8 nodes and 9 edges. Switches

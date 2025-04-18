@@ -2,13 +2,22 @@
     - [x] Adjecent switch state generator
     - [x] Powerflow based measures
     - [x] Switch state scoring
-    - [] study case
-    - [] Powerflow data preperation
     - [x] Simulated anealing
+    - [x] study case
+    - [] Powerflow data preperation
 
+    - [x] Redo types as table
+    - [x] Re-organzie to include own work in results
+
+    - [] Discussion
     - [] Results
+    - [] Add power factor as measure
 
-    - [] Performance benchmark
+    - [] Title page
+    - [] Proof reading
+
+    - [x] Performance benchmark
+
     - [] Time series data endpoint
 - Experimentation work:
     - [x] Line losses
@@ -18,5 +27,6 @@
     - [x] Validate things with online EWZ data
     - [x] Implement some remaining measures
     - [x] Produce correlation plots
+    - [] Add power factor as measure
     - [] Wider simulated annealing test run
-    - [] Performance benchmarks (pandapower, argh....)
+    - [x] Performance benchmarks (pandapower, argh....)

@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{bookmark}
+\usepackage{booktabs}
 \usepackage{titlesec}
 % \usepackage[T1]{fontenc}
 % \usepackage{pgfplots} 
@@ -28,10 +29,10 @@
 \usepackage{geometry}
 \usepackage{adjustbox}
 \usepackage[margin=1cm]{caption}
-\usepackage{booktabs}
 \usepackage[style=vancouver]{biblatex}
 \usepackage{algorithm2e}
 
+%Algorithm2e settings
 \LinesNumbered
 \SetAlgoNoEnd
 \SetAlgoVlined
@@ -44,8 +45,6 @@
 % \newcommand{\myargfn}[1]{\textcolor{green}{\emph{#1}}}\SetFuncArgSty{myargfn}
 % \SetAlFnt{\texttt}
 
-
-
 \addbibresource{all.bib}
 
 \setlength{\parindent}{0px}
@@ -53,7 +52,7 @@
 
 \geometry{
   a4paper,
-  total={170mm,257mm},
+  %total={170mm,257mm},
   left=25mm,
   right=25mm,
   top=20mm,
@@ -61,51 +60,51 @@
 
 % Header and footer information
 \fancyhf{}
-\setlength\headheight{15pt}
-\fancyhead[L]{\thetitle} 
-\fancyhead[R]{}
+% \setlength\headheight{15pt}
+% \fancyhead[L]{} 
+% \fancyhead[R]{}
 \fancyfoot[R]{\thepage}
 
 \newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
 
-\titleformat{\chapter}[display]
-  {\bfseries\Large}
-  {}
-  {0ex}
-  {\titlerule\vspace{1ex}\filleft}
-  [\vspace{1ex}\titlerule]
+\titleformat{\chapter}[display]%
+{\bfseries\Large}%
+{}%
+{0ex}%
+{\titlerule\vspace{1ex}\filleft}%
+[\vspace{1ex}\titlerule]
 
-\title{Optimizing switch states in distribution grids}
+% \title{Optimizing switch states in distribution grids}
 \author{Sidney Pauly}
-\date{March 2024}
 
 % \graphicspath{img/ABDN.png}
 \begin{document}
 
-\begin{titlepage}
-	
-	\begin{center}
-		\includegraphics[width=50mm]{img/ABDN.png}\\[.5cm]
-		School of Natural and Computing Sciences\\
-		\HRule{2pt} \\
-		\LARGE \textbf{Optimizing switch states in distribution grids}
-		\HRule{2pt} \\ [0.5cm]
-	\end{center}
-
-
-\end{titlepage}
-
-% \title{ UNIVERSITY OF ABERDEEN
-% 		\\ [1.0cm]
-% 		% Change to your faculty if needed
+% \begin{titlepage}
+% 	\begin{center}
 % 		\includegraphics[width=50mm]{img/ABDN.png}\\[.5cm]
 % 		School of Natural and Computing Sciences\\
 % 		\HRule{2pt} \\
 % 		\LARGE \textbf{Optimizing switch states in distribution grids}
 % 		\HRule{2pt} \\ [0.5cm]
-% 		\normalsize \today\vspace*{5\baselineskip}}
+% 	\end{center}
+% \end{titlepage}
+
+\title{ UNIVERSITY OF ABERDEEN
+		\\ [1.0cm]
+		% Change to your faculty if needed
+		\includegraphics[width=50mm]{img/ABDN.png}\\[.5cm]
+		School of Natural and Computing Sciences\\
+		\HRule{2pt} \\
+		\LARGE \textbf{Optimizing switch states in distribution grids}
+		\HRule{2pt} \\ [0.5cm]
+		\normalsize \today\vspace*{5\baselineskip}}%
 		
+\maketitle
+
 \tableofcontents
+
+\clearpage
 
 \chapter{Introduction}
 
@@ -116,6 +115,10 @@
 \section{Existing Literature}
 
 \input{sections/introduction/existing_literature.tex}
+
+\section{The need for a switch state score}
+
+\input{sections/introduction/switch_state.tex}
 
 \section{Study case}
 
@@ -147,11 +150,7 @@
 
 \input{sections/methods/pf.tex}
 
-\section{Data cleanup and preperation}
-
-\input{sections/methods/data_preperation.tex}
-
-\section{Switch states}
+\section{Creating valid switch states: a graph partitioning problem}
 
 \input{sections/methods/switchstate_explorer.tex}
 
@@ -161,13 +160,9 @@
 % Expalin algorithm:
 % Explain random element
 
-\section{Measures applied}
+\section{Grid measures}
 
 \input{sections/methods/measures.tex}
-
-\section{Scoring a switchstate}
-
-\input{sections/methods/scoring_switchstate.tex}
 
 \section{Simulated annealing}
 
@@ -175,13 +170,31 @@
 
 \chapter{Results}
 
-\section{Random swtichstates}
+\section{Preparing the grid data}
+
+\input{sections/results/data_preperation.tex}
+
+\section{Generating a switch state}
+
+\input{sections/results/switch_state_generators.tex}
+
+\section{Scoring a switch state}
+
+\input{sections/results/scoring_switchstate.tex}
+
+\section{Fast powerflow}
+
+\input{sections/results/pf.tex}
+
+\section{Good case: suburban grid}
 
 \input{sections/results/suburban_grid.tex}
 
-% Show distributions of pre-powerflow data (perhaps per grid)
+\section{Simulated annealing}
 
-\section{Good case: suburban grid}
+\input{sections/results/simulated_annealing.tex}
+
+% Show distributions of pre-powerflow data (perhaps per grid)
 
 \section{Bad case: urban grid}
 
@@ -191,7 +204,7 @@
 
 \chapter{Appendix}
 
-\section{Venios API calls used}
+\section{Venios API}\label{sec:appendix:api}
 
 \input{sections/appendix/vep_api.tex}
 

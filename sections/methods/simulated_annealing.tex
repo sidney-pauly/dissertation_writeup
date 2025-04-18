@@ -82,25 +82,4 @@ changes into that new state.
     \label{alg:annealing}
 \end{algorithm}
 
-\subsection{Making it work for switch states}
 
-\autoref{alg:annealing} show an implementation of the simulated annealing algorithm.
-There are many ways to implement the probability function \texttt{p()}. For this work
-a probability closely resembling the Boltzmann probability was chosen:
-
-\begin{equation}
-    p_c(\Delta E, T) = \begin{cases}
-        1 & \text{if} \ \Delta E \leq 1\\
-        e^{(-\gamma \Delta E/ T)} & \text{if} \ \Delta E > 1
-    \end{cases} 
-\end{equation}
-
-where $\gamma$ is a constant that can be tweaked for best optimization performance.
-For the energy of the system the scoring function (\autoref{eq:score}) is used:
-
-\begin{equation}
-    E = 1 - s
-\end{equation}
-
-Lastly to get a new random adjacent switch state \autoref{alg:ssexp:adjacent}
-is used.

@@ -20,28 +20,36 @@ has data privacy advantages.
 
 \subsection{Topological grid data}
 
-The grid data coming from VEP contains edges and nodes. For each there are various subtypes, with some relevance
-to this work.\\
+The grid data coming from VEP contains edges and nodes.
+The subtypes with relevance to this work are listed in tables \ref{table:vep:nodes} and
+\ref{table:vep:edges}\\
 \\
-The following node types are relevant:
-\begin{itemize}
-    \item \textbf{Domestic Prosumer} household, usually consumes power
-    \item \textbf{Industry Prosumer} stores, factories, etc.
-    \item \textbf{Solar Panel}, injecting power into the grid
-    \item \textbf{Battery Storage}, temporarily stores power and later injects it
-    \item \textbf{Electric car chargers}
-    \item \textbf{Other Prosumer} other types of prosumers like, wind turbines, electric heaters, heat pumps etc. 
-    \item \textbf{Any other node} does not inject or consume power, and thus only modelled as a junction between edges
-\end{itemize}
+\begin{figure}[H]
+    \begin{tabular}{l p{3cm} p{8cm}}
+        Name & Power production/consumption & Description\\
+        \hline
+        Domestic prosumer & Consumes power & A household consuming power. Power is mainly consumed in the morning and evenings when people are home\\
+        Industry prosumer & Consumes power & A store or factory. Power is mainly consumed during work hours\\
+        Solar panel       & Produces power & Produces power based on sunlight, thus most power produced in the summer at mid-day\\
+        Other prosumers   & Produces and consumes power & Other prosumers, like electric car chargers, batteries, heat pumps, etc. These can have a range of load patterns\\
+        Any other node    & None           & Any other node acting as a junction, busbar or other. As they all do not consumer or produce power they are only relevant as so far as they act as junctions for cable connections
+    \end{tabular}
+    \caption{Node types relevant to this work}
+    \label{table:vep:nodes}
+\end{figure}
 
-Then there are the following edge types:
-
-\begin{itemize}
-    \item \textbf{Cable} A cable with actual length, resistance and reactance
-    \item \textbf{Transformer} Connects different voltage levels, here not modelled, instead the node its connected to, becomes the slack node
-    \item \textbf{Switch} Connects two nodes and can be interrupted. Modelled with zero resistance and reactance
-    \item \textbf{Any other edge} other short miscellaneous edges connecting nodes within substations or electrical cabinets. Modelled as zero resistance and reactance
-\end{itemize}
+\begin{figure}[H]
+    \begin{tabular}{l p{10cm}}
+        Name & Description\\
+        \hline
+        Cable & Cables have impedance and a physical length\\
+        Transformer & Connects a grid to a higher voltage level. Main feed-in point in a low voltage grid\\
+        Switch & An edge that can be interrupted. Modelled with no impedance and no physical length\\
+        Any other & Other miscellaneous edge not modelled with physical length or impedance. Usually connects nodes within a substation or electrical cabinet.
+      \end{tabular}
+    \caption{Edge types relevant to this work}
+    \label{table:vep:edges}
+\end{figure}
 
 A good dataset for validation and comparison is the SimBench data set. It is a set of
 gird data provided by the University Kassel. The dataset aims to model typical German
@@ -57,7 +65,7 @@ switch states these nodes can be merged down to 96 with 95 edges running between
 The exact method to do so will be explained in the data preparation section. These numbers of nodes
 are typical for German grids\autocite{venios}.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \includegraphics{img/simbench/layout.png}
     \caption{
         Non-geographical representation of the SimBench "1-LV-rural1"
@@ -117,7 +125,7 @@ into the real world.
     \label{fig:vep:load_profiles}
 \end{figure}
 
-Figure \ref{fig:vep:load_profiles} shows some example load data obtained from VEP. It can be seen
+Figure \ref{fig:vep:load_profiles} shows example load data obtained from VEP. It can be seen
 that power production and consumption varies, widely throughout the day and the year. As a result the grid
 might act very differently depending on the season and time. An important question to answer is therefore if
 there are swtichstates that are generally better or if the best switch state is highly dependent on

@@ -1,4 +1,5 @@
-Within literature two adjacent problems exist: Optimal Transmission Switching (OTS)\autocite{ots_lit_review}
+Within literature two research subjects exist that deal with switches in the
+electrical grid: Optimal Transmission Switching (OTS)\autocite{ots_lit_review}
 and Switch Allocation Problem (SAP)\autocite{switch_allociation_lit_review}.\\
 \\
 OTS is usually focused on transmission grids and aims to reduce the overall
@@ -6,18 +7,24 @@ operation costs by taking out certain transmission lines. It often also incorpor
 mechanisms into the optimization. A key difference between OTS and the aim of this
 work is that OTS generally avoids islanding completely, i.e. it only considers one big interconnected grid 
 area. Also, because usually does not deal with the distribution grid, transfomers as the connection point
-to the rest of the grid are generally not considered. Lastly within the context of OTS transmition lines are
-switched, that means that    \\
+to the rest of the grid are generally not considered. 
+Lastly within the context of OTS the main goal is to switch transmission lines,
+meaning taking them out of use. Within the distribution grid switching is instead
+primarily aimed at isolating different grid areas from each other or to connect
+previously unconnected ones. Not using specific cables is not a major aim.\\
 \\
 SAP is focused on the distribution grid, however instead of asking which switches to switch
 it asks where switches should ideally be installed to increase gird reliability and reduce costs.
 SAP does not focus on the question of how the switches in the grid should
-be configured during operation.\\
+then be configured once they are in operation.\\
 \\
+
+A possible name for this problem
+could be Optimal Switch State Problem (OSSP) or Optimal Switch Configuration Problem (OSCP).
 Literature on OSSP or OSCP seems to be very limited. The only available
 literature we are aware of are the works of
 Kerzel et al.\autocite{optimal_switch_configuration} and
-Wolter et al.\autocite{meshed_grids}. Both of these also consider the german grids, 
+Wolter et al.\autocite{meshed_grids}. Both of these consider German grids, 
 with their relatively high count of producers in the distribution grid. 
 
 

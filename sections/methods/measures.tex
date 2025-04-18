@@ -1,8 +1,9 @@
 There are two types of measures that can be applied on a template or on the entire grid 
 \begin{enumerate}
-  \item A priori measures that result from the grid topology and the parameters
-  of the grid components
-  \item Measures resulting from running powerflow (or other simulations)
+  \item Topological and structural measures, i.e. what components does the grid contain
+  and how are they laid out spacially
+  \item Grid operational parameters, like current utilization of components, line losses
+  and voltages
 \end{enumerate}
 
 The former are quicker to obtain and are generally good to classify the templates while
@@ -16,7 +17,7 @@ An added complication arises from the fact that measures that differ per templat
 might not differ between partitions of the grid. In these cases measures need to be introduced
 that assess the difference of this measure between the templates. 
 
-\subsection{A priori measures}
+\subsection{Topological and Structural}
 
 \subsubsection{Atomic island count}
 
@@ -130,7 +131,7 @@ the metric is relatively expensive as it scales with the number of nodes squared
 An alternative is to take the average distance to a single node. In this case the
 transformer should be a good choice.
 
-\subsection{Powerflow based measures}
+\subsection{Operational}
 
 \subsubsection{Voltage}
 

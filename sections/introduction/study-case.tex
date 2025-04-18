@@ -14,5 +14,24 @@
 % One restriction being imposed witin this work is single feed in, meaning that only
 % one transformer supplies a given distribution grid. 
 
-
-`'
+As a study case the grid of one of Venios' Swiss customers will be used. 
+They operate over a thousand
+low voltage grids in rural, suburban and urban areas\autocite{venios}. 
+A grid in this context is a gird area containing a transformer and supplying
+a neighbourhood of 60 or more buildings\autocite{venios}. These grids have switches
+within and switches connecting them to neighbouring grids. Within the standard
+switch state (SSS), all switches to other grids are open. This switch state is
+used under normal operating conditions\autocite{venios}. To test the effect of switching
+we select geographical boxes within the grid operators' region containing 5-10 grids each.
+We then examine different switching states and apply different optimizers with the goal
+of finding switching states with improved operational parameters over the SSS.\\
+\\
+The laws in Switzerland mandate equal and continuous access to the grid for every household.
+Further Switzerland allows feed-in by private households with a right to sell guaranteed
+for small producers\autocite{venios}. The implications of this are that continuous supply
+and continuous feed-in has to be guaranteed at the distribution grid level with penalties
+imposed in case of violation. Subsequently, any disconnection of grid members needs
+to be avoided and mandated load shedding is both costly and needs to be distributed
+over grid customers equally\autocite{venios}. All of this combined presents a strong
+argument for switch state optimization as it poses an opportunity improve grid operational
+parameters with almost no costs to the grid operator.
