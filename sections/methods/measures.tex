@@ -17,9 +17,9 @@ An added complication arises from the fact that measures that differ per templat
 might not differ between partitions of the grid. In these cases measures need to be introduced
 that assess the difference of this measure between the templates. 
 
-\subsection{Topological and Structural}
+\subsection{Topological and Structural}\label{sec:topo_and_struct_measures}
 
-\subsubsection{Atomic island count}
+\subsubsection{Atomic island count}\label{sec:island_count}
 
 The simplest measure has already been introduced, it is just the number
 of atomic island per template: $|T_i|$. The number of atomic
@@ -63,7 +63,7 @@ Similar considerations about excluding components apply.
 The net power of a template is the sum over all power produced and consumed:
 
 \begin{equation}
-  \sum_{i = 0}^n S_i
+  S_{net} = \sum_{i = 0}^n S_i
 \end{equation}
 
 Again this number does not change between partitions.
@@ -95,32 +95,19 @@ the change is. If the number of templates stays constant between partitions then
   \Delta_s = \sum_{i=0}^{|T_a|} ||T_{a, i}| - |T_{b, i}||
 \end{equation}
 
-\subsubsection{Degree}
-
-The degree of a node is the number of edges connected to it. Using \autoref{eq:graph_theory:node_form}
-the degree of a node can be written as:
-
-\begin{equation}
-  |\mathfrak{N_i}|
-\end{equation}
-
-The average degree
-of partitions may be different if open switches are not considered. Similarly, 
-if dead ends are disconnected it may change further.
-
 \subsubsection{Density}
 
 The density of a graph is defined as
 
 \begin{equation}
-  \frac{2 n_e}{n_n(n_n-1)} 
+  \rho = \frac{2 n_e}{n_n(n_n-1)}.
 \end{equation}
 
 It is both useful when applied to the full graph (with open switches removed)
 or to individual templates. It can be applied both to the atomic island 
 graph or the grid.
 
-\subsubsection{Shortest path length}
+\subsubsection{Shortest path length}\label{sec:shortest_path}
 
 The shortest path measures the shortest path between two nodes within a graph.
 Particularly useful is the average shortest path length, which considers
@@ -131,13 +118,13 @@ the metric is relatively expensive as it scales with the number of nodes squared
 An alternative is to take the average distance to a single node. In this case the
 transformer should be a good choice.
 
-\subsection{Operational}
+\subsection{Operational}\label{sec:operational_measures}
 
 \subsubsection{Voltage}
 
-The voltages of the nodes are a direct result of running powerflow 
-(see \autoref{eq:pf:gs_pf} and \autoref{eq:pf:nr_pf}). Of particular
-interest are the minimum and maximum voltages $V_{min}$ and $v_{max}$
+The voltages of the nodes are a direct result of running power flow 
+(see \autoref{eq:pf:gs} and \autoref{eq:pf:nr_pf}). Of particular
+interest are the minimum and maximum voltages $V_{min}$ and $V_{max}$
 over the entire. Grid operators have regulatory limits for the maximum
 voltage delta allowed at each household, e.g. no more than $10\%$
 deviation from the rated grid voltage of $440V$\autocite{venios}.
@@ -150,6 +137,7 @@ using equations \ref{eq:ac:ohm_complex} and \ref{eq:pf:current_at_node}:
 
 \begin{equation}
   S_i = V_i I_i^* = V_i \sum_{j = 0}^N y_{ij} V_j^*
+  \label{eq:measures:power}
 \end{equation}
 
 \subsubsection{Transformer utilization}
@@ -159,6 +147,7 @@ The transformer utilization can thus be specified as such:
 
 \begin{equation}
   \eta_t = \frac{P_{trafo}}{P_{rated}}
+  \label{eq:measures:trafo_utilization}
 \end{equation}
 
 Lower transformer utilization is desirable as it reduces wear and increases
@@ -195,10 +184,10 @@ Line losses can be calculated by adding the power flowing through
 a cable in both directions. Power through a cable is given as:
 
 \begin{equation}
-  \begin{cases}
+  \begin{split}
   S_{ij} = V_i I_ij^*\\
   S_{ji} = V_j I_ji^*
-  \end{cases}
+  \end{split}
 \end{equation}
 
 Adding these up leaves us with only the power lost:

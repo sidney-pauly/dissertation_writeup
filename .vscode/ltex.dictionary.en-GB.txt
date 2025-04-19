@@ -1,9 +1,7 @@
-powerflow
 Venios
 VEP
 GridTopology
-swtichstates
-subgraphs
 pandapower
 Simbench
 Pandapower
+intersiting

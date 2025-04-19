@@ -57,8 +57,10 @@ changes into that new state.
         $E_{cur} \gets$ \GetSystemEnergy{$state$}\;
 
         \While{$T > minTemperature$}{
-
             $newState \gets$ \GetRandomAdjacentState{$state$}\;
+            \While{$p_{multi} >$ \Random{}}{
+                $newState \gets$ \GetRandomAdjacentState{$newState$}\;
+            }
             $E_{new} \gets$ \GetSystemEnergy{$newState$}\;
 
             $\Delta E \gets E_{cur}-E_{new}$\;
@@ -82,4 +84,12 @@ changes into that new state.
     \label{alg:annealing}
 \end{algorithm}
 
+Compared to the standard simulated annealing algorithm found in literature
+we added and additional probability $p_{multi}$ in \autoref{alg:annealing}. 
+If a random value gets generated that is greater than $p_{multi}$, then
+the \texttt{getRandomAdjacentState()} method is called again, which effectively
+yields a state further away from the current state.
+$p_{multi}$ was added to allow for faster exploring of states,
+as getting a neighbouring state is a lot cheaper than evaluating it in our
+case.
 

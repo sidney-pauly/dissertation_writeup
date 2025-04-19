@@ -1,41 +1,27 @@
-To simulate the grid a way to solve the powerflow problem is needed. To solve powerflow we assume,
-that we know all the production and consumption of all prosumers, as well as the voltage at the so-called slack
-node (for this node the consumed/produced power is not known). Using a powerflow solver we can then determine the voltage
-at all the other nodes in the grid as well as the power at the slack node. This information then also suffices to determine
-the currents through all cables. Taken together these quantities give a fairly good overview over how the grid performs.
-
-\begin{center}
-    \begin{tabular}{ c c c c }
-    Node type          & Power     & Voltage & Count \\ 
-    \hline
-    \textbf{Slack}     & Unknown   & Known   & 1     \\  
-    \textbf{Prosumer}  & Known     & Unknown & n    
-    \end{tabular}
-\end{center}
-
-
-
-To formulate the powerflow equation, we can start form the general assumption
-that the current entering node has to equal the current exiting it.\\
-There is two sources for current through a node:
+To formulate the power flow equation, we can start form the general assumption
+that the current entering a node has to equal the current exiting it, i.e.
+there is conservation of charges.\\
+There are two sources for current through a node:
 
 \begin{itemize}
-    \item Current due to the prosumer at that node
+    \item Current due to production/consumption at the node
     \item Current from or to other nodes
 \end{itemize}
 
-Defining the current due to the node itself is straight forward by considering
-the complex power equation (eq: \ref{eq:ac:complex}):
+The current due to production/consumption at node $i$ itself is
+obtained by considering
+the complex power \autoref{eq:ac:complex}:
 
 \begin{equation}
     \begin{aligned}
         S_i     &= V_iI_i^*\\
-        I_i     &= \frac{S_i^*}{V_i^*}
+        I_i     &= \frac{S_i^*}{V_i^*}.
     \end{aligned}
     \label{eq:pf:current_due_to_prosumer}
 \end{equation}
 
-Defining the current due to the other nodes requires the use of Ohm's law (eq. \ref{eq:ac:ohm_complex}).
+Defining the current due to the other nodes requires the use of
+Ohm's law (\autoref{eq:ac:ohm_complex}).
 The current flowing from the current node (node $i$)
 to one of the adjacent nodes (node $j$) will be a result of the
 voltage difference between the current node and its neighbour:
@@ -43,45 +29,79 @@ voltage difference between the current node and its neighbour:
 \begin{equation}
     \begin{aligned}
         \Delta V_{ij} &= Z_{ij} I_{ij} \\
-        I_{ij}        &= (V_i - V_j) y_{ij}
+        I_{ij}        &= (V_i - V_j) Y_{ij},
     \end{aligned}
+    \label{eq:pf:neighbour_current}
 \end{equation}
 
-Where $y_ij$ is the admittance between nodes $i$ and $j$.
-Summing up all currents from all the neighbours (we can ignore the case $i = j$ as $\Delta V_{ii} = 0$)
+where $Y_{ij}$ is the admittance between nodes $i$ and $j$.
+Summing over \autoref{eq:pf:neighbour_current} for all neighbours of $i$:
 
 \begin{equation}
     \begin{aligned}
         I_{i} &= \sum_{i \ne j}^N (V_i - V_j) y_{ij}\\
-              &= V_i \sum_{i \ne j}^N y_{ij} - \sum_{i \ne j}^N V_j y_{ij}
+              &= V_i \sum_{i \ne j}^N y_{ij} - \sum_{i \ne j}^N V_j y_{ij}.
         \label{eq:pf:current_at_node}
     \end{aligned}
 \end{equation}
 
-Finally, equating the two sources for current we get to the formulation of the power flow
-equation:
+The case $i = j$ can be ignored as $\Delta V_{ii} = 0$.\\
+\\
+Equating the two sources for current \autoref{eq:pf:current_due_to_prosumer}
+and \autoref{eq:pf:current_at_node} results in the power flow equation:
 
 \begin{equation}
     \begin{aligned}
-        V_i \sum_{i \ne j}^N y_{ij} - \sum_{i \ne j}^N V_j y_{ij} = \frac{S_i^*}{V_i^*}
+        V_i \sum_{i \ne j}^N Y_{ij} - \sum_{i \ne j}^N V_j Y_{ij} = \frac{S_i^*}{V_i^*}.
         \label{eq:pf:pf_eq_large}
     \end{aligned}
 \end{equation}
 
-One further simplification can be employed by using an admittance matrix, in it the diagonal elements are populated with the
-so called self-admittance. It consists of the sum of admittances to the neighbouring nodes:
+One further simplification can be employed by using an admittance matrix.
+The elements of which are:
 
 \begin{equation}
-    y_{ii} = \sum_{i \ne j} y_{ij}
+    y_{ij} =
+    \begin{cases}
+        \sum_{i \ne j} y_{ij} & \text{for} \ i = j\\
+        -Y_{ij}               & \text{for} \ i \ne j.
+    \end{cases}
+    \label{eq:pf:admittance_matrix}
 \end{equation}
 
 Thus equation \ref{eq:pf:pf_eq_large} can be further simplified:
 
 \begin{equation}
-    \sum_{j=1}^N V_j y_{ij} = \frac{S_i^*}{V_i^*}
+    \sum_{j=1}^N V_j y_{ij} = \frac{S_i^*}{V_i^*}.
     \label{eq:pf:full_pf_eq}
 \end{equation}
 
-This powerflow equation is non-linear, which thus necessities the use of a computational
-solver. Two solvers, their advantages and disadvantages as well as implementation details will
-be discussed subsequently.\\
+Note the change from using admittance $Y_{ij}$ to the admittance matrix
+elements $y_{ij}$.\\
+\\
+This power flow equation is non-linear, which thus necessities the use of a computational
+solver. Two such solvers, are introduced in \autoref{sec:methods:pf}\\
+\\
+To simulate the grid a way to solve the power flow problem is needed. 
+To solve power flow we assume,
+that we know all the production and consumption for all prosumers,
+as well as the voltage at the so-called slack
+node (for this node the consumed/produced power is not known). Using a
+power flow solver we can then determine the voltage
+at all the other nodes in the grid as well as the power at the slack 
+node. This information then also suffices to determine
+the currents through all cables. Taken together these quantities 
+give a fairly good overview of how the grid performs.
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{ l|r r r }
+        Node type          & Power     & Voltage & Count \\ 
+        \midrule
+        \textbf{Slack}     & Unknown   & Known   & 1     \\  
+        \textbf{Prosumer}  & Known     & Unknown & n    
+    \end{tabular}
+    \caption{
+        Types of nodes relevant to solving power flow.
+    }
+\end{figure}

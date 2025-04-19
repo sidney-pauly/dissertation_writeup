@@ -31,6 +31,10 @@
 \usepackage[margin=1cm]{caption}
 \usepackage[style=vancouver]{biblatex}
 \usepackage{algorithm2e}
+\usepackage[affil-it]{authblk}
+\usepackage[symbol]{footmisc}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 %Algorithm2e settings
 \LinesNumbered
@@ -75,10 +79,27 @@
 [\vspace{1ex}\titlerule]
 
 % \title{Optimizing switch states in distribution grids}
-\author{Sidney Pauly}
-
+% \author{Sidney Pauly\inst{1} \inst{2}\\ Supervisors: Dr. Nicol\'as Rubido\inst{1} Dr. Christian K\"ohler\inst{2}}
+% \author{Sidney Pauly}
 % \graphicspath{img/ABDN.png}
+
 \begin{document}
+
+\author{Sidney Pauly%
+\thanks{Main author; \texttt{me@sidneypauly.me}}\\}
+\affil{University of Aberdeen, Venios GmbH and Smart Infrastructure Limited}
+
+\author{Dr. Nicol\'as Rubido%
+\thanks{Supervisor; \texttt{nicolas.rubidoobrer@abdn.ac.uk}}}
+\affil{University of Aberdeen, School of Natural and Computing Sciences}
+
+\author{Dr. Christian K\"ohler%
+\thanks{Supervisor; \texttt{christian.koehler@venios.de}}}
+\affil{Venios GmbH}
+
+\date{April 18, 2025}
+
+% \date{Dated: \today}
 
 % \begin{titlepage}
 % 	\begin{center}
@@ -90,15 +111,17 @@
 % 	\end{center}
 % \end{titlepage}
 
-\title{ UNIVERSITY OF ABERDEEN
-		\\ [1.0cm]
-		% Change to your faculty if needed
-		\includegraphics[width=50mm]{img/ABDN.png}\\[.5cm]
+\title{\includegraphics[width=50mm]{img/ABDN.png}\\[.5cm]
 		School of Natural and Computing Sciences\\
+		\vspace{2.5cm}
+		\includegraphics[width=50mm]{img/venios.png}\\[.5cm]
 		\HRule{2pt} \\
-		\LARGE \textbf{Optimizing switch states in distribution grids}
+		\LARGE \textbf{Optimizing Switch States in Distribution Grids}\\
+		\vspace{3mm}
+		\large Undergraduate Thesis
 		\HRule{2pt} \\ [0.5cm]
-		\normalsize \today\vspace*{5\baselineskip}}%
+		% \normalsize \today\vspace*{5\baselineskip}
+		}%
 		
 \maketitle
 
@@ -132,7 +155,7 @@
 
 \input{sections/theory/ac-basics.tex}
 
-\section{Powerflow}
+\section{Power flow}
 
 \input{sections/theory/pf.tex}
 
@@ -146,7 +169,7 @@
 
 \input{sections/methods/vep.tex}
 
-\section{Powerflow algorthms}
+\section{Power flow algorithms}\label{sec:methods:pf}
 
 \input{sections/methods/pf.tex}
 
@@ -160,7 +183,7 @@
 % Expalin algorithm:
 % Explain random element
 
-\section{Grid measures}
+\section{Grid measures}\label{sec:measures}
 
 \input{sections/methods/measures.tex}
 
@@ -178,17 +201,21 @@
 
 \input{sections/results/switch_state_generators.tex}
 
-\section{Scoring a switch state}
+\section{Scoring a switch state}\label{sec:score}
 
 \input{sections/results/scoring_switchstate.tex}
 
-\section{Fast powerflow}
+\section{Powerflow implementations}\label{sec:pf:impl}
 
 \input{sections/results/pf.tex}
 
-\section{Good case: suburban grid}
+\section{Randomly generated switch states}
 
 \input{sections/results/suburban_grid.tex}
+
+\section{Correlation of structural/topological and operational measures}
+
+\input{sections/results/correlation.tex}
 
 \section{Simulated annealing}
 
@@ -196,17 +223,27 @@
 
 % Show distributions of pre-powerflow data (perhaps per grid)
 
-\section{Bad case: urban grid}
-
 \section{Changing laod data over time}
 
-\section{Wider sampling?}
+\input{sections/results/time.tex}
+
+\chapter{Conclusion}
+
+\input{sections/conclusion/conclusion.tex}
 
 \chapter{Appendix}
 
 \section{Venios API}\label{sec:appendix:api}
 
 \input{sections/appendix/vep_api.tex}
+
+\section{"Suburb 2" grid area}\label{sec:appendix:suburb2}
+
+\input{sections/appendix/suburb2.tex}
+
+\section{"Urban 2" grid area}\label{sec:appendix:urban2}
+
+\input{sections/appendix/urban2.tex}
 
 \printbibliography
 

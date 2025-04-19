@@ -126,7 +126,8 @@ produces an atomic island structure depicted in figure \ref{fig:data_prep:swiss_
         Atomic islands formed out of swiss suburban grid data, laid out in a non-geographical way.
         Atomic islands shown as nodes with 
         ordinary islands in green and islands with transformers as black squares. Connecting switches between the
-        atomic islands are shown as edges.
+        atomic islands are shown as edges. Layout produced with
+        Kamada-Kawai layout algorithm\autocite{kamada_kawai}.
     }
     \label{fig:data_prep:swiss_suburb_with_leafs}
 \end{figure}
@@ -182,11 +183,89 @@ The result of merging them can be seen in \autoref{fig:data_prep:swiss_suburb_to
     \end{center}
     \caption{
         Atomic islands from \autoref{fig:data_prep:swiss_suburb_topology} with unconnected islands
-        connected to their neighbour with the lowest net consumption.
+        connected to their neighbour with the lowest net consumption. Layout produced with
+        Kamada-Kawai layout algorithm\autocite{kamada_kawai}.
     }
     \label{fig:data_prep:swiss_suburb_topology_patched}
 \end{figure}
 
-\subsection{Powerflow}
+\subsection{Preparing the data for power flow}
 
-% Mention how to prepare the data for powerflow
+A switch state, defined as a set of templates, provides information
+on which atomic islands should be in one power flow island together.
+One atomic island however contains many edges and nodes. For power flow
+these are the relevant components. Thus, as a first step the set of
+all components ending up in a power flow island together have to be formed.
+As each atomic island is a set of nodes, the set of nodes in a power flow
+island is simply the union of all atomic islands:
+
+\begin{equation}
+    \mathfrak{N}_t = \cup_{I \in T_t} I,
+\end{equation}
+
+where $\mathfrak{N}_t$ is the set of nodes in template $T_t$
+and $I$ an atomic within template $T_t$.\\
+\\
+All edges within a template ($\mathfrak{E}_t$) 
+can be gathered by forming
+the subset of edges where both side $i$ and $j$ of
+that edge are contained in set of nodes for that template:
+
+\begin{equation}
+    \mathfrak{E}_t = \{ \mathfrak{E}_{ij} \in \mathfrak{E} : i, j \in \mathfrak{N}_t \},
+\end{equation}
+
+where $\mathfrak{E}$ is the set of all edges as
+defined in \autoref{eq:graph_theory:edge_list}.\\
+\\
+$\mathfrak{E}_t$ contains all edges of all types (see \autoref{table:vep:edges}).
+However, the powerflow equation can only be solved for edges
+with a non-zero impedance. To solve this we merge all nodes with
+zero impedance edges between them into a single node. These nodes
+will be called power flow nodes $nodes_{pf}$. To obtain these
+\autoref{alg:data_prep:atomic_islands} can be used again. This time
+we call it with the subset of edges of zero impedance:
+
+\begin{equation}
+    edges_{zero \ impedance} = \{ \mathfrak{E}_{ij} \in \mathfrak{E}_t : Z_{ij} = 0 \}
+\end{equation}
+
+and all nodes of the template $\mathfrak{N}_t$. \\
+\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics{img/switchstate_exploring/swiss_suburb/pf_island_powers.png}
+    \caption{
+        Power flow nodes of template 3 (orange) of standard switch state
+        of example grid area (see \autoref{fig:data_prep:swiss_suburb_topology_patched}).
+        Node coloured by real power $P$. Slack node shown as square. Non-geographical layout using
+        Kamada-Kawai algorithm\autocite{kamada_kawai}.
+    }
+    \label{fig:pf_nodes_power_swiss_suburb}
+\end{figure}
+
+For the powerflow algorithm to work we need to designate a slack node. In our
+case this will be the power flow node with the transformer connected.
+This node is given
+index 0 (this becomes important later, see \autoref{sec:pf:impl}). For all
+remaining power flow nodes we sum over their constituent nodes to
+obtain the total power generated/consumed at that power flow node:
+
+\begin{equation}
+    S_i = \sum_{k \in nodes_{pf}} S_k.
+\end{equation}
+
+The resulting pf nodes and their real powers $P$ of one of the
+templates of the example gird can be
+seen in \autoref{fig:pf_nodes_power_swiss_suburb}.\\
+\\
+All edges with a non-zero impedance are used to form
+the admittance matrix $Y$.
+As our initial voltage at every node $V_i$ we use the rated
+current of the 3-phase low voltage grid $V_{rated} = 400V$.
+With this we have all of our constraints to use with
+the power flow equations \autoref{eq:pf:gs} or \autoref{eq:pf:nr_pf}.
+
+
+% Mention how to prepare the data for power flow

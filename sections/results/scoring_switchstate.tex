@@ -19,9 +19,16 @@ As such the weights need to have values between 0 and 1, as well as sum to 1:
     w_{voltage} + w_{line \ avg} + w_{line \ max} + w_{trafo \ avg} + w_{trafo \ max} + w_{losses} = 1.
 \end{equation}
 
+This equation is introduced by us to unify operating voltage,
+line and transformer utilization,
+line and transformer limits as well as line losses in a
+single score. These 
+aspects are the most commonly used ones by grid operators to assess their
+grid\autocite{venios}.
+
 \subsection{Voltage score}
 
-The voltage score is defined as:
+We define the voltage score as:
 
 \begin{equation}
     s_{voltage} = clamp(\frac{V_{rated}*(1+\Delta_{V}) - V_{max}
@@ -44,12 +51,17 @@ defined as:
     \end{cases}.
 \end{equation}
 
+This score linearly decreases with the minimum and maximum voltages, 
+$V_{min}$ and $V_{max}$ deviating further from the rated voltage $V_{rated}$.
+The score drops to zero if both $V_{max}$ and $V_{min}$ are outside the
+maximum voltage deviation defined through $\Delta_V$.
+
 \subsection{Line utilization score}
 
 The maximum line utilization score is defined as
 
 \begin{equation}
-    s_{line \ avg} = clamp(\frac{\eta_{line \ max} - max(\{\eta_{ij} : (i, j) \in \mathfrak{E}_{ij}\})}{\eta_{line \ max}})
+    s_{line \ max} = clamp(\frac{\eta_{line \ max} - max(\{\eta_{ij} : (i, j) \in \mathfrak{E}_{ij}\})}{\eta_{line \ max}})
 \end{equation}
 
 average score as
@@ -58,17 +70,21 @@ average score as
     s_{line \ avg} = clamp(\frac{\eta_{line \ avg} - \frac{\sum_{(i, j) \in \mathfrak{E}_{ij}} \eta_{ij}}{|\mathfrak{E}_{ij}|}}{\eta_{line \ avg}}),
 \end{equation}
 
-where $\eta_{line \ max}$ and $\eta_{line \ avg}$ are the maximum allowed maximum or average utilization
-values before the score drops to 0. $\eta_{ij}$ is used as defined in \autoref{eq:measures:cable_utilization}.
-$\mathfrak{E}_{ij}$ is the set of all cables of the grid as defined in \autoref{eq:graph_theory:edge_list}
-(Important: it is not just the set of edges of one template).
+where $\eta_{line \ max}$ and $\eta_{line \ avg}$ are the limits
+allowed for the maximum and average currents, before the score drops to 0.
+$\eta_{ij}$ is used as defined in \autoref{eq:measures:cable_utilization}.
+$\mathfrak{E}_{ij}$ is the set of all cables of the
+grid as defined in \autoref{eq:graph_theory:edge_list}
+(Important: it is not just the set of edges of one template, but rather of all edges in 
+a partition).
 
 \subsection{Transformer utilization score}
 
-The transformer utilization score is defined similarly to the cable utilization score with
+The transformer utilization score is defined similarly
+to the cable utilization score with
 
 \begin{equation}
-    s_{trafo \ avg} = clamp(\frac{\eta_{trafo \ max} - max(\{\eta_{t} : 0 < t < |T|\})}{\eta_{trafo \ max}})
+    s_{trafo \ max} = clamp(\frac{\eta_{trafo \ max} - max(\{\eta_{t} : 0 < t < |T|\})}{\eta_{trafo \ max}})
 \end{equation}
 
 average score as
@@ -77,8 +93,8 @@ average score as
     s_{trafo \ avg} = clamp(\frac{\eta_{trafo \ avg} - \frac{\sum_{t = 0}^{|T|} \eta_t}{|T|}}{\eta_{trafo \ avg}}),
 \end{equation}
 
-where $T$ is the set of templates and $\eta_{trafo \ max}$ as well as $\eta_{trafo \ avg}$ work similarly
-as for the cable score.
+where $T$ is the set of templates. $\eta_{trafo \ max}$ as well as $\eta_{trafo \ avg}$ 
+work similar to the cable limits $\eta_{line \ max}$ and $\eta_{line \ avg}$.
 
 \subsection{Line loss Score}
 
@@ -90,11 +106,14 @@ sum over all generated and consumed power as such:
     |S|_{total} = \sum_{i=0}^N |P_i| + |Q_i|.
 \end{equation}
 
-The rational here being, that the more power is generated or consumed within a grid
-the more losses should also occur. The absolute value is calculated are component wise
-and not as a magnitude as resistive and reactive power losses also add up component wise.\\
+The rational being, that the more power is generated
+or consumed within a grid
+the more losses should also occur. 
+The absolute value is calculated are component wise
+and not as a magnitude as resistive and reactive 
+power losses also add up component wise.\\
 \\
-The line loss score is then defined as such:
+We define the line loss score as such:
 
 \begin{equation}
     s_{loss} = clamp(\frac{\alpha \sum_{(i, j) \in \mathfrak{E}_{ij}} P_{ij, \ loss} + Q_{ij, \ loss}}{|S|_{total}}),

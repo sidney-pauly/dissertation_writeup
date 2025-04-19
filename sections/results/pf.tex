@@ -1,25 +1,124 @@
-\subsection{Implementations}
-
-All powerflow solver code can be found in 
-\texttt{lib/powerflow.py}, \texttt{lib/fastpf/powerflow.h}
-\\ and
-\texttt{lib/fastpf/powerflow.c}\\
-
-The methods \texttt{solve\_powerflow\_gauss\_seidel()}
-and \texttt{solve\_powerflow\_newton\_raphson()}
-use python and numpy only and closely follow the mathematical formulations layed out above.\\
+\subsection{Gauss-Seidel}
 
 For the Gauss-Seidel method it is worth mentioning, that the Voltage result for each
-node (\ref{eq:pf:gs_pf}) is immediately used to update the voltage vector. I.e. when $V_i^{(k+1)}$
+node (\ref{eq:pf:gs}) is immediately used to update the voltage vector. I.e. when $V_i^{(k+1)}$
 is calculated the voltages $V_{j}^{(k+1)}$ where $j<i$ are already available and being used instead of
 the old values $V_{j}^{(k)}$.\\
 
-These methods where used as a baseline to access their performance. To identify where the biggest
-speed-ups in performance could be gained timings where recorded for each of stages in the algorithm.
-For a run of the python only Newton-Raphson timings to calculate the simbench grid shown in figure
-\ref{fig:vep:simbench_node_types} are listed below:
+\subsection{Newton-Raphson}
 
-\vspace{.5cm}
+\begin{algorithm}[h!]
+
+
+    \SetKwFunction{SolvePowerflowNewtonRaphson}{solvePowerflowNewtonRaphson} % Define the function name
+    \SetKwProg{Fn}{Function}{:}{} % Define the keyword and formatting
+    \SetKwFunction{Zeros}{zeros}
+    \SetKwFunction{Fill}{fill}
+
+    \SetKwFunction{GetJacobianAndPower}{getJacobianAndPower}
+    \SetKwFunction{Invert}{invert}
+    \SetKwFunction{Max}{max}
+
+    \SetKw{Break}{break}
+
+    \Fn{\SolvePowerflowNewtonRaphson{$Y$, $P^{sch}$, $V_{start}$, $\epsilon$, $i_{max}$}}{
+        
+        \tcp{Prepare matrices and vectors}
+        $V \gets$ \Zeros{$|P^{sch}| + 1$}\;
+        \Fill{$V$, $V_{start}$}
+        $P \gets$ \Zeros{$|P^{sch}|$}\;
+        $\Delta P \gets$ \Zeros{$|P^{sch}|$}\;
+        $J \gets$ \Zeros{$(|P|, |P|)$}\;
+
+        \While{$i < i_{max}$}{
+            \tcp{Fill power vec. with zeros}
+            \Fill{$P$, $0$}\;
+
+            \tcp{Fill jacobian with values}
+            \GetJacobianAndPower{$Y$, $V$, $J$, $P$}\;
+
+            \tcp{Calculate Deltas}
+            $\Delta P \gets P^{sch} - P$\;
+
+            \If{\Max{$|\Delta P|$} $< \epsilon$}{
+                \Break\;
+            }
+
+            \tcp{Invert jacobian}
+            $J^{-1} \gets$ \Invert{$J$}\;
+
+            \tcp{Update voltage vector}
+            $V[1:] \gets V[1:] + \Delta P J^{-1}$\;
+        }
+
+        \KwRet $V$\;
+    }
+    \caption{
+        Newton-Raphson algorithm. \texttt{zeros($n$)} creates a new vector of size $n$,
+        \texttt{fill($\vec{v}$, $x$)} fills a vector $\vec{v}$ with $x$.
+        \texttt{getJacobianAndPower()}
+        calculates the current power values $P$ (\autoref{eq:measures:power})
+        and the jacobian $J$ (see \autoref{eq:pf:nr_pf_jacobi}).
+        This is shown here as being done in-place 
+        (i.e. no new matrices and vectors are created for each iteration).
+        The implementation assumes that the slack node is the node with index 0.
+        Voltage deltas are only calculated for non-slack nodes, slack node is
+        held at initial voltage.
+    }
+    \label{alg:pf:nr}
+\end{algorithm}
+
+\subsection{Power flow results}
+
+The power flow \autoref{alg:pf:nr} returns a voltage for each node. This is shown
+in \autoref{fig:pf:results_voltage}. Out
+of the voltages the cable currents can be
+calculated using \autoref{eq:pf:current_at_node}. This is shown in
+\autoref{fig:pf:results_currents}.
+
+\begin{figure}[H]
+    \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/switchstate_exploring/swiss_suburb/pf_island_voltage.png}
+        \caption{}
+        \label{fig:pf:results_voltage}
+      \end{subfigure}%
+      \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/switchstate_exploring/swiss_suburb/pf_island_currents.png}
+        \caption{}
+        \label{fig:pf:results_currents}
+      \end{subfigure}
+    \caption{
+        Power flow nodes of template 3 (orange) of standard switch state
+        of example grid area (see \autoref{fig:data_prep:swiss_suburb_topology_patched}).
+        Node coloured by voltage $V$ (a). Edges coloured by real current $I$ (b).
+        Slack node shown as square. Non-geographical layout using
+        Kamada-Kawai algorithm\autocite{kamada_kawai}.
+    }
+\end{figure}
+
+\subsection{Optimizations}
+
+% All power flow solver code can be found in 
+% \texttt{lib/powerflow.py}, \texttt{lib/fastpf/powerflow.h}
+% \\ and
+% \texttt{lib/fastpf/powerflow.c}\\
+
+The methods \texttt{solve\_powerflow\_gauss\_seidel()}
+and \texttt{solve\_powerflow\_newton\_raphson()}
+use python and numpy only and closely follow the mathematical formulations laid out in
+\autoref{sec:methods:pf}.
+These methods where used as a baseline to assess their performance.
+As the Gauss-Seidel method is generally slower further performance improvements
+were not pursuit.\\
+\\
+To identify where the biggest
+speed-ups in performance could be gained timings where recorded for each stage of
+\autoref{alg:pf:nr}.
+For a run of the python only Newton-Raphson timings to calculate the simbench grid shown in figure
+\ref{fig:vep:simbench_node_types} are listed in \autoref{fig:pf:perf:initial}.
+
 
 \begin{figure}[H]
     \begin{center}
@@ -37,17 +136,19 @@ For a run of the python only Newton-Raphson timings to calculate the simbench gr
         \end{tabular}
     \end{center}
 \caption{Timings taken for different parts of the \texttt{solve\_powerflow\_newton\_raphson()} method}
+\label{fig:pf:perf:initial}
 \end{figure}
     
-From this table it can immediately be seen, that the most important part
+From this table it can be seen, that the most important part
 of the algorithm to optimize is filling the Jacobian with values. Thus, this
-part was implemented in c using python c bindings to directly fill a numpy
+part was implemented in C using python C bindings to directly fill a numpy
 matrix passed with values. This has the major advantage that only the most performance
-critical code has to be implemented in c whilst everything else can be kept in python
+critical code has to be implemented in C whilst everything else can be kept in python
 for easy and quick development. Additionally, passing an existing matrix from python
-means no additional memory allocations have to be done in c which is both good for performance 
+means no additional memory allocations have to be done in C which is both good for performance 
 and memory safety.\\
-Taking the same timing for the c enhanced Newton-Raphson implementation yields the following:
+Taking the same timing for the C enhanced Newton-Raphson implementation produces the timings
+seen in \autoref{fig:pf:perf:improved}.
 
 \begin{figure}[H]
     \begin{center}
@@ -66,6 +167,7 @@ Taking the same timing for the c enhanced Newton-Raphson implementation yields t
         \end{tabular}
     \end{center}
 \caption{Timings taken for different parts of the \texttt{fast\_newton\_raphson()} method}
+\label{fig:pf:perf:improved}
 \end{figure}
 
 Using the new c method yields a considerable speed-up by more than ten times.\\
@@ -74,15 +176,15 @@ To unlock a further speed gain the matrices in use need to be examined closely. 
 an entry for every possible combination of nodes $i$ and $j$, this means it has size $N^2$. However, if there is
 no cable betewen $i$ and $j$ this entry is zero. As a lot of these cables do not exist a lot of the entries are zero
 and the admittance matrix is sparse.
-As can be seen from equation \ref{eq:pf:nr_pf_jacobi} as well as \ref{eq:pf:nr_pf_p} and \ref{eq:pf:nr_pf_q} the entries
+As can be seen from equation \ref{eq:pf:nr_pf_jacobi} as well as \ref{eq:pf:nr_pf_pq} and \ref{eq:pf:nr_pf_pq} the entries
 in the Jacobian are also zero if a given entry $y_{ij}$ is zero in the admittance matrix.\\
 Just iterating over these zero entries or doing multiplications of zero values wastes considerable processor time. On top
 the large matrices take up a lot of memory. This problem can be solved by specifically using
 a sparse matrix library like \textit{scipy.sparse}\autocite{2020SciPy-NMeth}. The library offers
 data types that only store non-zero elements within the matrix as well as solvers that can operate
 efficiently on these types.\\
-Using the sparse library as well as implementing c code that operates on this matrix type a
-further performance gain is possible:
+Using the sparse library as well as implementing C code that operates on this matrix type a
+further performance gain was achieved, as presented in \autoref{fig:pf:perf:sparse}.
 
 \begin{figure}[H]
     \begin{center}
@@ -101,6 +203,7 @@ further performance gain is possible:
         \end{tabular}
     \end{center}
 \caption{Timings taken for different parts of the \texttt{fast\_newton\_raphson\_sparse()} method}
+\label{fig:pf:perf:sparse}
 \end{figure}
 
 \subsection{Validation}
@@ -119,7 +222,7 @@ further performance gain is possible:
 \end{figure}
 
 
-Fast powerflow is good, but no use if it is not correct. For validation
+Fast power flow is good, but no use if it is not correct. For validation
 the solvers are compared against the system shown in figure \ref{fig:pf:3_node_system} and results
 provided in \textit{Power System Analysis}\autocite{power_system_analysis}.
 
@@ -173,7 +276,7 @@ consistency. Egor Grishin et. al. show that \textit{pandapower} is among the fas
 implementations available in python\autocite{newton_raphson_python}. Our method should therefore
 be as fast or faster than the fastest available python Newton-Raphson implementations.\\
 \\
-That this is the case will partially be due to the vastly reduced feature set of our method
+That this is the case will partially be due to the reduced feature set of our method
 (it just calculates the voltage vector based on the admittance matrix). However, to write
 something like a switch state optimizer, this is all that is needed, and the additional
 performance makes a big difference in how many switch states can be assessed in a given time.

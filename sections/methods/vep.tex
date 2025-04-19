@@ -60,7 +60,7 @@ for this work.\\
 
 Figure \ref{fig:vep:simbench_node_types} shows one of these Simbench grids ("1-LV-rural1"). 
 Within VEP this grid is modelled with 553 edges and 553 nodes. A lot of these nodes are there to model
-internals like bus bars or protective switch setups. For powerflow and for analysing
+internals like bus bars or protective switch setups. For power flow and for analysing
 switch states these nodes can be merged down to 96 with 95 edges running between them. 
 The exact method to do so will be explained in the data preparation section. These numbers of nodes
 are typical for German grids\autocite{venios}.
@@ -69,14 +69,15 @@ are typical for German grids\autocite{venios}.
     \includegraphics{img/simbench/layout.png}
     \caption{
         Non-geographical representation of the SimBench "1-LV-rural1"
-        grid\autocite{simbench}. Nodes with connected transformers are shown
+        grid\autocite{simbench}. Layout produced with
+        Kamada-Kawai layout algorithm\autocite{kamada_kawai}.
+        Nodes with connected transformers are shown
         in \textbf{grey}, households with solar panels in \textbf{green}
         and normal households in \textbf{red}. Only cables with non-zero impedance shown, any nodes
         connected by zero impedance cables have been merged.
     }
     \label{fig:vep:simbench_node_types}
 \end{figure}
-
 
 % The grouping into grids
 % Outer world (for geographical locations)
@@ -93,17 +94,17 @@ To simulate the grid adequately, production and consumption values for
 each of the prosumers is needed. VEP provides various different models
 to do so ranging form standard load profiles (standardized curves which are adjusted
 according to the prosumer's parameters), neural network models trained on historic data,
-weather forecast based models and actual real time measurement values\autocite{venios}.\\
+weather forecast based models, and actual real time measurement values\autocite{venios}.\\
 \\
 Within real low voltage girds, the data available will often be spotty. Not all prosumers
 have measurement devices and their measurement frequency is often limited. The most accurate
 load modelling data is therefore often a mixture of the sources mentioned above.\\
 \\ 
-For this work all load timelines will be obtained from Venios through its API. Venios works
+For this work all load time series will be obtained from Venios through its API. Venios works
 closely with the grid operators to make sure these timelines most closely resemble the conditions
 in the real grid. This important as these values are being used to monitor the grid and in some
 cases trigger active control measures\autocite{venios}. Within this work it is assumed that the data
-available through the API is the best data available, which most closely resembles the actual grid load.
+available through the API is the best data available, which closely resembles the actual grid load.
 Any switch states and their effects on grid parameters will be tested against this data. It can
 thus be reasonably assumed that any improvements seen based on this data translate reasonably well
 into the real world. 

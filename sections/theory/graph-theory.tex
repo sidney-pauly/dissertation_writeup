@@ -16,16 +16,17 @@ be used to classify certain configurations of the grid, through graph measures.
 
 \subsection{Grid data representation}
 
-In the most fundamental terms the grid can be represented as nodes, which are the 
-producers or consumers (also called prosumers) and cables, which are the edges.
-The prosumers have a production or consumption capacity $S_i$ (complex power see eq. \ref{eq:ac:complex}).
-The cables have an admittance $Y_{ij}$ (see eq. \ref{eq:ac:admittance}).\\
+In the most fundamental term, the grid can be represented as nodes,
+which are the 
+producers or consumers (also called prosumers), and cables, which are the edges.
+The prosumers have a production or consumption capacity $S_i$ (complex power see \autoref{eq:ac:complex}).
+The cables have an admittance $Y_{ij}$ (see \autoref{eq:ac:admittance}).\\
 \\
 3 ways to represent the graph data will be subsequently used. 
 Each records the full information of the graph, but
-has different advantages and disadvantages. Note that the examples shown below all record
+has different advantages and disadvantages. Note that the examples shown below record
 the admittance of each cable in addition to the info that the cable exists. Sometimes
-this info is not need in which case it can be omitted and the representation further simplified/
+this info is not needed in which case it can be omitted and the representation further simplified.
 
 \subsubsection{Edge list}\label{sec:graph_theory:edge_list}
 
@@ -40,28 +41,34 @@ here $i$ and $j$ are the index of node A and B connected by the edge and
 $Y_{ij}$ the admittance of the edge (cable).
 For sparse graphs (graphs where only a handful of all possible edges $\mathfrak{E_{ij}}$ exist), this method
 of storing the graph data is very efficient as only as many entries as cables are required. The disadvantage
-algorithmically is that finding a specific connection between is not so efficient as it has to be searched for amongst
-all entries. E.g. to look up admittance between nodes a and b that specific edge has to be found.
+algorithmically is that finding a specific connection between nodes is not so efficient,
+as it has to be searched for amongst
+all entries.
 
 \subsubsection{Matrix form}
 
-In matrix form each row and column represents a node. Each entry in the matrix is the admittance between nodes $i$ and $j$.
-If the admittance is not to be recorded than if a node exists the entry can be set to 1 and if not to 0 instead:
+In matrix form each row and column represents a node and each non-zero
+entry in the matrix means that a connection between these nodes exists.
+The admittance matrix introduced in \autoref{eq:pf:admittance_matrix}
+is such a matrix-representation (with the addition of the diagonal entries):
 
 \begin{equation}
     Y =
     \begin{pmatrix}
-        Y_{11} & Y_{12} & ... & Y_{1n}\\
-        Y_{21} & ...    & ... & ...   \\
+        y_{11} & y_{12} & ... & y_{1n}\\
+        y_{21} & ...    & ... & ...   \\
         ...    & ...    & ... & ...   \\
-        Y_{n1} & ...    & ... & Y_{nn}\\
+        y_{n1} & ...    & ... & y_{nn}\\
     \end{pmatrix}
 \end{equation}
 
-As the cables in a grid are symmetrical (admittance is the same for current from a to b as it is form b to a), 
-the matrix is symmetrical as well: $Y_{ij} = Y_{ji}$. Further in pure graph representation all diagonal elements are
+As the cables in a grid are symmetrical (admittance is the same for current
+from a to b as it is form b to a), 
+the matrix is symmetrical as well: $Y_{ij} = Y_{ji}$.
+ Further in pure graph representation all diagonal elements are
 zero as there are no cables running in a loop starting and ending at the same node.\\ 
-One big advantage of this representation is that it allows for quick lookups, i.e. if one needs the admittance between nodes a and b
+One big advantage of this representation is that it allows for
+quick lookups, i.e. if one needs the admittance between nodes a and b
 one can simply look up that entry in the matrix.\\
 The disadvantage of this form of representation is that it is very space inefficient, as it requires
 $N^2$ entries (where $N$ is the number of nodes). Especially for sparse graphs a lot of these entreis contain
@@ -79,4 +86,5 @@ each node has and the admittance to each other node:
 \end{equation}
 
 This representation is especially useful for things like flooding algorithms where it is
-relevant to know which nodes can be reached from any given node in question. 
+relevant to know which nodes can be reached from any given node in question. Its memory
+size is $2(N+N_e)$, where $N_e$ is the number of edges.
